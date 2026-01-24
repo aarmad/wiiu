@@ -50,7 +50,7 @@ const Footer = {
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2023 Histoire de la Wii U - Projet éducatif. Ce site n'est pas affilié à Nintendo. Tous les droits des marques citées appartiennent à leurs propriétaires respectifs.</p>
+                <p>&copy; 2026 Histoire de la Wii U - Projet éducatif. Ce site n'est pas affilié à Nintendo. Tous les droits des marques citées appartiennent à leurs propriétaires respectifs.</p>
             </div>
         </div>
     </footer>
