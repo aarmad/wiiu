@@ -143,7 +143,7 @@ const App = {
                         <p>Les moments clés de l'histoire de la Wii U</p>
                     </div>
                     
-                    <Timeline />
+                    <Timeline :is-visible="sectionVisible.chronologie" />
                 </div>
             </section>
             
