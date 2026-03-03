@@ -1,185 +1,347 @@
-// Application Vue principale
-const { createApp, ref, onMounted } = Vue;
+/* ===================================================
+   WII U ARCHIVE — APPLICATION VUE
+   =================================================== */
+const { createApp, onMounted, ref } = Vue;
 
+/* ──── Données de la timeline ─── */
+const TIMELINE = [
+    { date: "Juin 2011", title: "Présentation à l'E3", desc: "La Wii U est officiellement dévoilée lors de l'E3 avec une démonstration du GamePad à écran tactile. La réaction est mitigée." },
+    { date: "Nov 2012", title: "Sortie mondiale", desc: "Sortie en Amérique du Nord le 18 novembre, puis au Japon et en Europe. Deux modèles disponibles : Basic (8 Go) et Deluxe (32 Go)." },
+    { date: "Déc 2012", title: "Lancement de Miiverse", desc: "Le réseau social Miiverse est lancé, permettant aux joueurs de partager dessins et messages. Une innovation sans précédent." },
+    { date: "Nov 2013", title: "Super Mario 3D World", desc: "Considéré comme l'un des meilleurs jeux de la plateforme, il démontre le potentiel du multijoueur local sur Wii U." },
+    { date: "Mai 2014", title: "Mario Kart 8", desc: "Devient le titre le plus vendu de la console avec 8+ millions d'exemplaires. Ses graphismes HD et sa jouabilité en font un succès." },
+    { date: "Mai 2015", title: "Splatoon", desc: "Nouvelle franchise Nintendo qui connaît un succès immédiat. Un shooter à l'encre total­lement novateur." },
+    { date: "Mars 2017", title: "Zelda: Breath of the Wild", desc: "Le jeu marque la fin de la Wii U. Il reçoit des critiques dithyrambiques et est considéré comme l'un des meilleurs jeux de tous les temps." },
+    { date: "Jan 2017", title: "Annonce de la Nintendo Switch", desc: "Nintendo annonce la Switch, qui reprend les concepts de la Wii U en les améliorant considérablement." },
+    { date: "Jan 2019", title: "Fin du support en ligne", desc: "Nintendo met fin au support en ligne, marquant la fin définitive du cycle de vie de la console." },
+];
+
+/* ──── Données des jeux ─── */
+const GAMES = [
+    { title: "The Legend of Zelda: Breath of the Wild", tag: "Action / Aventure", desc: "Chef-d'œuvre sorti en même temps sur Wii U et Switch, il a redéfini l'open world.", num: "01", featured: true },
+    { title: "Splatoon", tag: "Shooter", desc: "Révolution du genre TPS avec sa galerie de peinture multijoueur.", num: "02" },
+    { title: "Mario Kart 8", tag: "Course", desc: "8 millions d'exemplaires vendus, toujours considéré comme le meilleur épisode.", num: "03" },
+    { title: "Super Mario 3D World", tag: "Platformer", desc: "Perle du platformer coopératif, portée avec succès sur Switch.", num: "04" },
+    { title: "Bayonetta 2", tag: "Action", desc: "Exclusivité Wii U sauvée par Nintendo, accueillie comme un chef-d'œuvre.", num: "05" },
+];
+
+/* ──── App principale ─── */
 const App = {
+    components: { ThreeScene },
+
     template: `
-    <div class="brutalist-grid">
-        <!-- HEADER ROW -->
-        <div class="grid-item head-logo">
-            <h1>wii u</h1>
-        </div>
-        <div class="grid-item head-title">
-            <h2>bienvenue dans l'archive de la console perdue de nintendo</h2>
-        </div>
+<!-- ═══ NAVBAR ═══ -->
+<nav class="nav">
+    <div class="nav-logo">Wii<span>U.</span></div>
+    <ul class="nav-links">
+        <li><a href="#histoire">Histoire</a></li>
+        <li><a href="#innovations">Innovations</a></li>
+        <li><a href="#timeline">Chronologie</a></li>
+        <li><a href="#jeux">Jeux</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Nous contacter</a>
+</nav>
 
-        <!-- NAVIGATION ROW -->
-        <div class="grid-item nav-cell" @click="scrollTo('about')">
-            <span>à propos</span> <span class="nav-arrow">↗</span>
+<!-- ═══ HERO ═══ -->
+<section class="hero" id="accueil">
+    <div class="hero-left">
+        <div class="hero-eyebrow">
+            <span class="hero-eyebrow-dot"></span>
+            Archive interactive &mdash; 2011–2019
         </div>
-        <div class="grid-item nav-cell" @click="scrollTo('innovations')">
-            <span>innovations</span> <span class="nav-arrow">↗</span>
+        <div class="hero-title display display-xl">
+            <div>LA CONSOLE</div>
+            <div class="accent-word">PERDUE</div>
+            <div>DE NINTENDO.</div>
         </div>
-        <div class="grid-item nav-cell" @click="scrollTo('legacy')">
-            <span>héritage</span> <span class="nav-arrow">↗</span>
-        </div>
-
-        <!-- ABOUT SECTION -->
-        <div id="about" class="grid-item history-cell">
-            <h3>Notre histoire</h3>
-            <p>En 2012, Nintendo a introduit la Wii U, successeur de l'incroyablement populaire Wii. Elle présentait un GamePad unique avec un écran tactile intégré, visant à combler le fossé entre les joueurs occasionnels et hardcore.</p>
-            <p>Malgré ses concepts novateurs, elle a eu du mal à trouver un public massif, ne s'écoulant qu'à 13,56 millions d'exemplaires dans le monde. Pourtant, elle a ouvert la voie à l'avenir hybride du jeu vidéo.</p>
-        </div>
-        
-        <div class="grid-item center-3d-cell">
-            <ThreeScene model="gamepad" />
-        </div>
-        
-        <div class="grid-item history-cell vision-cell">
-            <p>La vision était de créer une expérience à double écran, permettant un multijoueur asynchrone et le mode Off-TV Play. Cette idée a finalement évolué pour donner naissance à l'énorme succès qu'est la Nintendo Switch.</p>
-        </div>
-
-        <!-- NOWADAYS ROW -->
-        <div class="grid-item nowadays-title">
-            <h3>De nos jours</h3>
-        </div>
-        <div class="grid-item nowadays-content-1">
-            <p>Depuis l'arrêt de sa production en 2017, la Wii U est devenue culte. Beaucoup de ses meilleurs jeux ont été portés sur la Nintendo Switch, prouvant que sa ludothèque était d'excellente qualité.</p>
-        </div>
-        <div class="grid-item nowadays-content-2">
-            <p>Le GamePad reste un matériel unique qui offrait des possibilités qu'aucune autre console ne pouvait reproduire, comme le gameplay asymétrique dans Nintendo Land.</p>
-        </div>
-        <div class="grid-item nowadays-content-3">
-            <p style="font-weight: bold; font-size: 1.2rem; text-align:right;">« Nous avons une place spéciale dans nos cœurs pour la Wii U. Ce fut une magnifique transition. »</p>
-        </div>
-
-        <!-- BANNER ROW -->
-        <div class="grid-item banner-row">
-            <div class="banner-text">innovations innovations innovations innovations innovations</div>
-        </div>
-
-        <!-- INNOVATIONS SECTION -->
-        <div id="innovations" class="grid-item service-cell">
-            <h3>La Console</h3>
-            <p>Une machine compacte avec des bords arrondis, dotée de la première architecture HD de Nintendo. Elle a discrètement posé les bases de l'écosystème moderne de la firme.</p>
-            <div class="learn-more">En savoir plus</div>
-        </div>
-        
-        <div class="grid-item service-3d-cell">
-            <ThreeScene model="console" />
-        </div>
-        
-        <div class="grid-item service-cell-2">
-            <h3>Miiverse</h3>
-            <p>La première tentative de Nintendo de créer un réseau social dédié. Les joueurs pouvaient partager des dessins, des captures d'écran et des astuces directement depuis leur console, favorisant une communauté bienveillante.</p>
-            <div class="learn-more">En savoir plus</div>
-        </div>
-
-        <!-- GAMES / LEGACY -->
-        <div id="legacy" class="grid-item success-banner">
-            <h3>Titres de Légende</h3>
-        </div>
-        
-        <div class="grid-item history-cell">
-            <h3>Zelda: Breath of the Wild ↗</h3>
-            <p>Sorti simultanément comme le chant du cygne de la Wii U et titre de lancement de la Switch, il est devenu l'un des plus grands jeux de tous les temps.</p>
-        </div>
-        <div class="grid-item history-cell">
-            <h3>Splatoon ↗</h3>
-            <p>Une toute nouvelle licence qui a révolutionné les jeux de tir multijoueurs. La carte affichée sur le GamePad était cruciale pour son gameplay novateur basé sur la peinture.</p>
-        </div>
-        <div class="grid-item history-cell">
-            <h3>Super Mario 3D World ↗</h3>
-            <p>Une masterclass en conception de niveaux qui a donné vie au jeu Mario 3D à 4 joueurs, prouvant que la Wii U pouvait offrir un plaisir multijoueur local inégalé.</p>
-        </div>
-
-        <!-- CONTACTS STRIP -->
-        <div class="grid-item nowadays-title" style="background:#000; color:#fff;">
-            <h3>Dites-nous tout</h3>
-        </div>
-
-        <!-- CONTACT & FORM -->
-        <div class="grid-item contact-left">
-            <h3>Nous savons</h3>
-            <p>Les meilleurs souvenirs surviennent de manière inattendue. C'est pourquoi nous archivons la Wii U. Partagez avec nous votre moment GamePad préféré.</p>
-            
-            <div style="width: 200px; height: 200px; border-radius: 50%; background: #0094C8; margin-top:2rem; display:flex; align-items:center; justify-content:center; color:white; font-size:3rem; border: var(--grid-border);">*</div>
-        </div>
-        
-        <div class="grid-item contact-form-side">
-            <h3>Parlons-en</h3>
-            <div style="display:flex; gap:1rem; margin-top:1rem;">
-                <div style="flex:1;">
-                    <label>Nom</label>
-                    <input type="text" class="brutal-input" placeholder="Miyamoto">
-                </div>
-                <div style="flex:1;">
-                    <label>E-mail</label>
-                    <input type="text" class="brutal-input" placeholder="mario@nintendo.com">
-                </div>
-            </div>
-            <div>
-                <label>Sujet</label>
-                <textarea class="brutal-input" rows="4"></textarea>
-            </div>
-            <button class="brutal-btn">ENVOYER ↗</button>
-            
-            <div style="margin-top:2rem;">
-                <h3>Suivez-nous</h3>
-                <div style="display:flex; gap:1rem; font-size:2rem; margin-top:1rem;">
-                    <i class="fab fa-twitter"></i>
-                    <i class="fab fa-facebook"></i>
-                    <i class="fab fa-instagram"></i>
-                    <i class="fab fa-reddit"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="grid-item head-logo" style="border-right:var(--grid-border); border-bottom:none;">
-            <h2>wii u</h2>
-        </div>
-        <div class="grid-item" style="grid-column: span 3; border-right:var(--grid-border); border-bottom:none; display:flex; flex-direction:column; gap:0.5rem; text-transform:uppercase;">
-            <div style="border-bottom: var(--grid-border); padding-bottom: 0.5rem;"><strong>à propos ↗</strong></div>
-            <div>notre histoire</div>
-            <div>équipe</div>
-            <div>jeux</div>
-        </div>
-        <div class="grid-item" style="grid-column: span 3; border-right:var(--grid-border); border-bottom:none; display:flex; flex-direction:column; gap:0.5rem; text-transform:uppercase;">
-            <div style="border-bottom: var(--grid-border); padding-bottom: 0.5rem;"><strong>innovations ↗</strong></div>
-            <div>gamepad</div>
-            <div>miiverse</div>
-            <div>off-tv play</div>
-        </div>
-        <div class="grid-item" style="grid-column: span 3; border-bottom:none; display:flex; flex-direction:column; gap:0.5rem;">
-            <div style="border-bottom: var(--grid-border); padding-bottom: 0.5rem; text-transform:uppercase;"><strong>contacts ↗</strong></div>
-            <div>info@wiiuarchive.com</div>
-            <div>pr@wiiuarchive.com</div>
-            <div>+1 800-255-3700</div>
-        </div>
-
-        <div class="copyright">
-            Copyright © 2026 Wii U Archive. Tous droits réservés. <strong>Politique de confidentialité</strong> et <strong>Conditions d'utilisation</strong>
+        <p class="body-md hero-subtitle">
+            Découvrez l'histoire fascinante de la Wii U, la console 8e génération de Nintendo. 
+            Mal comprise à sa sortie, elle a pourtant révolutionné le jeu vidéo et donné naissance à la Switch.
+        </p>
+        <div class="hero-actions">
+            <button class="btn-primary" onclick="document.getElementById('timeline').scrollIntoView({behavior:'smooth'})">
+                Explorer l'histoire ↗
+            </button>
+            <button class="btn-ghost" onclick="document.getElementById('innovations').scrollIntoView({behavior:'smooth'})">
+                <i class="fas fa-gamepad"></i> Innovations
+            </button>
         </div>
     </div>
+
+    <div class="hero-canvas-wrapper">
+        <ThreeScene model="gltf" />
+    </div>
+
+    <div class="hero-stats">
+        <div class="stat-card">
+            <div class="stat-number">13<span>M</span></div>
+            <div class="stat-label">Consoles vendues</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">208<span>+</span></div>
+            <div class="stat-label">Jeux au catalogue</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">8<span>ans</span></div>
+            <div class="stat-label">Avant la Switch</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ TICKER ═══ -->
+<div class="ticker">
+    <div class="ticker-inner">
+        <span class="ticker-item">GamePad</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">Miiverse</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">Off-TV Play</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">HD Nintendo</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">Asymétrique</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">GamePad</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">Miiverse</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">Off-TV Play</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">HD Nintendo</span>
+        <span class="ticker-sep">✦</span>
+        <span class="ticker-item">Asymétrique</span>
+        <span class="ticker-sep">✦</span>
+    </div>
+</div>
+
+<!-- ═══ HISTOIRE ═══ -->
+<section class="info-section" id="histoire">
+    <div class="container">
+        <div class="info-grid fade-up">
+            <div class="info-text">
+                <div class="tag">Contexte</div>
+                <h2 class="display display-lg">
+                    L'ère<br><span class="accent-word">Wii U.</span>
+                </h2>
+                <p class="body-md">
+                    En 2012, forte du succès phénoménal de la Wii (101 millions d'unités), Nintendo a lancé sa successeure : la Wii U. 
+                    Première console HD de la firme, elle embarquait un GamePad révolutionnaire équipé d'un écran tactile de 6,2 pouces.
+                </p>
+                <p class="body-md">
+                    Malgré des idées brillantes, la communication autour de la console prêta à confusion : beaucoup pensaient le GamePad n'être qu'un accessoire pour la Wii.
+                </p>
+                <ul class="feature-list">
+                    <li>Première console Nintendo avec affichage 1080p</li>
+                    <li>Rétrocompatibilité totale avec la Wii et ses accessoires</li>
+                    <li>Réseau social intégré : Miiverse</li>
+                    <li>Mode Off-TV Play : jouer sans téléviseur</li>
+                </ul>
+            </div>
+            <div class="mini-canvas-wrapper" style="aspect-ratio: 4/3;">
+                <ThreeScene model="console" />
+                <div class="canvas-hint">🖱 Glisser pour explorer</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ INNOVATIONS ═══ -->
+<section class="info-section" id="innovations" style="background: var(--surface);">
+    <div class="container">
+        <div class="info-grid reverse fade-up">
+            <div class="mini-canvas-wrapper" style="aspect-ratio: 1;">
+                <ThreeScene model="gltf" />
+                <div class="canvas-hint">🖱 Glisser pour explorer</div>
+            </div>
+            <div class="info-text">
+                <div class="tag lime">Innovation</div>
+                <h2 class="display display-lg">
+                    Le<br><span class="accent-word">GamePad.</span>
+                </h2>
+                <p class="body-md">
+                    Le GamePad est la pièce maîtresse de la Wii U. Avec son écran tactile de 6,2 pouces, sa caméra, son micro et son NFC, 
+                    il offrait une fenêtre supplémentaire sur le monde du jeu.
+                </p>
+                <p class="body-md">
+                    Une idée révolutionnaire qui a inspiré directement les Joy-Cons de la Nintendo Switch.
+                </p>
+                <ul class="feature-list">
+                    <li>Écran tactile résistif de 6,2 pouces</li>
+                    <li>Gyroscope 6 axes & accéléromètre</li>
+                    <li>Caméra frontale, micro et haut-parleurs intégrés</li>
+                    <li>Technologie NFC pour les Amiibo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ TIMELINE ═══ -->
+<section class="timeline-section" id="timeline">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="tag">Chronologie</div>
+            <h2 class="display display-lg">Moments<br><span class="accent-word">clés.</span></h2>
+        </div>
+
+        <div class="timeline-outer">
+            <div class="timeline-line"></div>
+            <div class="tl-items">
+                <div class="tl-item" v-for="(ev, i) in events" :key="i" :class="{ visible: visibleItems.includes(i) }" :data-index="i">
+                    <div class="tl-content">
+                        <div class="tl-date">{{ ev.date }}</div>
+                        <h4>{{ ev.title }}</h4>
+                        <p>{{ ev.desc }}</p>
+                    </div>
+                    <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+                    <div class="tl-empty"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ JEUX ═══ -->
+<section class="games-section" id="jeux">
+    <div class="container">
+        <div class="section-header fade-up">
+            <div class="tag red">Catalogue</div>
+            <h2 class="display display-lg">Jeux<br><span class="red-word">légendaires.</span></h2>
+        </div>
+
+        <div class="games-bento">
+            <div v-for="(game, i) in games" :key="i" class="game-card fade-up" :class="{ featured: game.featured }">
+                <div class="game-num">{{ game.num }}</div>
+                <div class="game-tag">{{ game.tag }}</div>
+                <h3>{{ game.title }}</h3>
+                <p>{{ game.desc }}</p>
+                <div class="arrow-link">En savoir plus ↗</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ GRAND TEXTE ═══ -->
+<div class="big-marquee">
+    <div class="display display-xl">
+        CONCEPTION<br>
+        <span class="accent-word">INGÉNIOSITÉ</span><br>
+        HÉRITAGE
+    </div>
+</div>
+
+<!-- ═══ CONTACT ═══ -->
+<section class="info-section" id="contact" style="background: var(--surface);">
+    <div class="container">
+        <div class="info-grid fade-up">
+            <div class="info-text">
+                <div class="tag lime">Contact</div>
+                <h2 class="display display-lg">Parlons-<br>en<span class="accent-word">.</span></h2>
+                <p class="body-md">Les meilleurs souvenirs viennent de façon inattendue. Partagez votre moment GamePad préféré avec nous.</p>
+                <div class="mini-canvas-wrapper" style="aspect-ratio:1; margin-top:2rem; max-width:260px;">
+                    <ThreeScene model="disc" />
+                    <div class="canvas-hint">Le Wii U Optical Disc</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+                <div style="display:flex;gap:1rem;">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:0.4rem;">
+                        <label style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">Nom</label>
+                        <input type="text" placeholder="Miyamoto" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:0.8rem 1rem;border-radius:10px;font-family:var(--font-body);font-size:0.9rem;outline:none;">
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:0.4rem;">
+                        <label style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">Email</label>
+                        <input type="email" placeholder="mario@nintendo.com" style="background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:0.8rem 1rem;border-radius:10px;font-family:var(--font-body);font-size:0.9rem;outline:none;">
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                    <label style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;">Message</label>
+                    <textarea rows="5" placeholder="Votre souvenir de la Wii U..." style="background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:0.8rem 1rem;border-radius:10px;font-family:var(--font-body);font-size:0.9rem;outline:none;resize:vertical;"></textarea>
+                </div>
+                <button class="btn-primary" style="align-self:flex-start;">Envoyer ↗</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="nav-logo" style="font-size:2rem;">Wii<span style="color:var(--accent)">U.</span></div>
+                <p>Archive interactive dédiée à la Nintendo Wii U, la console qui était en avance sur son époque. Réalisée avec Three.js & Vue.js.</p>
+            </div>
+            <div class="footer-col">
+                <h5>Navigation</h5>
+                <ul>
+                    <li><a href="#histoire">Notre histoire</a></li>
+                    <li><a href="#innovations">Innovations</a></li>
+                    <li><a href="#timeline">Chronologie</a></li>
+                    <li><a href="#jeux">Jeux</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Innovations</h5>
+                <ul>
+                    <li><a href="#">GamePad</a></li>
+                    <li><a href="#">Miiverse</a></li>
+                    <li><a href="#">Off-TV Play</a></li>
+                    <li><a href="#">Affichage HD</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Contact</h5>
+                <ul>
+                    <li><a href="#">info@wiiuarchive.fr</a></li>
+                    <li><a href="#">Twitter / X</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Wii U Archive. Tous droits réservés.</span>
+            <span>Fait avec ♥ &amp; Three.js</span>
+        </div>
+    </div>
+</footer>
     `,
 
-    components: {
-        ThreeScene
-    },
-
     setup() {
-        const scrollTo = (id) => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-            }
-        };
+        const visibleItems = ref([]);
+        const events = TIMELINE;
+        const games = GAMES;
 
-        return {
-            scrollTo
-        };
+        onMounted(() => {
+            /* IntersectionObserver pour la timeline */
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    const idx = parseInt(e.target.dataset.index);
+                    if (e.isIntersecting && !visibleItems.value.includes(idx)) {
+                        visibleItems.value.push(idx);
+                    }
+                });
+            }, { rootMargin: '-15% 0px -15% 0px' });
+
+            setTimeout(() => {
+                document.querySelectorAll('.tl-item').forEach(el => obs.observe(el));
+            }, 300);
+
+            /* fade-up générique */
+            const fuObs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) { e.target.classList.add('visible'); fuObs.unobserve(e.target); }
+                });
+            }, { threshold: 0.12 });
+
+            setTimeout(() => {
+                document.querySelectorAll('.fade-up').forEach(el => fuObs.observe(el));
+            }, 100);
+        });
+
+        return { visibleItems, events, games };
     }
 };
 
-// Initialiser l'application Vue
 createApp(App).mount('#app');

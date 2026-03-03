@@ -4,36 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wii U - Brutalist Archive</title>
+    <title>Wii U — Archive Interactive</title>
+    <meta name="description" content="L'histoire complète de la Nintendo Wii U, la console en avance sur son temps.">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,900&family=Space+Grotesk:wght@300;400;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body class="noise-bg">
-    <div id="app">
-        <!-- L'application Vue sera montée ici -->
-    </div>
+<body>
+    <div id="app"></div>
 
-    <!-- CDN pour Vue.js 3 et Three.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
 
-    <!-- Composants (We will keep them but strip their styling in CSS) -->
-    <script src="components/Header.js"></script>
-    <script src="components/Timeline.js"></script>
-    <script src="components/Gallery.js"></script>
-    <script src="components/Footer.js"></script>
-
-    <!-- Three.js Scene -->
     <script src="three-scene.js"></script>
-
-    <!-- Application principale -->
     <script src="app.js"></script>
 </body>
 
