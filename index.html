@@ -1194,25 +1194,7 @@
             ground.rotation.x = -Math.PI / 2; ground.position.y = -2; ground.receiveShadow = true;
             scene.add(ground);
 
-            /* ── Particules de fond ── */
-            (function buildParticles() {
-                const N = 200, pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
-                for (let i = 0; i < N; i++) {
-                    pos[i * 3] = (Math.random() - 0.5) * 30;
-                    pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-                    pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
-                    const t = Math.random();
-                    col[i * 3] = t < 0.4 ? 0.76 : 0;
-                    col[i * 3 + 1] = t < 0.4 ? 0.96 : t < 0.7 ? 0.58 : 0.04;
-                    col[i * 3 + 2] = t < 0.4 ? 0.24 : t < 0.7 ? 0.78 : 0.08;
-                }
-                const geo = new THREE.BufferGeometry();
-                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-                geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-                const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.05, vertexColors: true, transparent: true, opacity: 0.65 }));
-                scene.add(pts);
-                window._particles = pts;
-            })();
+            /* ── Particules supprimées ── */
 
             /* ── État de caméra cible (lerp) ── */
             const camTarget = { x: 0, y: 0, z: 10 };
@@ -1273,22 +1255,22 @@
                DÉFINITIONS DES POSITIONS PAR PANEL
             ════════════════════════════ */
             const PANELS = [
-                // 0 Hero — centré, loin (modèle entier visible)
-                { cam: [0, 0.1, 9], look: [0, 0, 0], rotY: 0, fov: 36, rimI: 1.0 },
-                // 1 GamePad — légère droite, caméra proche
-                { cam: [1.8, 0.2, 6], look: [0.3, 0, 0], rotY: -0.5, fov: 34, rimI: 1.4 },
-                // 2 Console — gauche, plongée douce
-                { cam: [-1.8, -0.2, 7], look: [-0.2, -0.1, 0], rotY: 0.9, fov: 38, rimI: 0.6 },
-                // 3 Miiverse — vue plongeante de dessus
-                { cam: [0, 3, 6], look: [0, 0.5, 0], rotY: 0, fov: 34, rimI: 1.0 },
-                // 4 Héritage — trois-quarts, recul
-                { cam: [2.2, 0.5, 8], look: [0.4, 0, 0], rotY: -1.0, fov: 40, rimI: 0.7 },
-                // 5 Timeline — très reculé, en fond
-                { cam: [0, 0.4, 13], look: [0, 0, 0], rotY: 1.5, fov: 36, rimI: 0.3 },
+                // 0 Hero — centré
+                { cam: [0, 0, 9], look: [0, 0, 0], rotY: 0, fov: 36, rimI: 1.0 },
+                // 1 GamePad — texte à gauche → modèle à DROITE → caméra à gauche (x négatif)
+                { cam: [-3.5, 0, 6], look: [-0.5, 0, 0], rotY: 0.4, fov: 34, rimI: 1.4 },
+                // 2 Console — texte à droite → modèle à GAUCHE → caméra à droite (x positif)
+                { cam: [3.5, 0, 7], look: [0.5, 0, 0], rotY: -0.6, fov: 38, rimI: 0.6 },
+                // 3 Miiverse — texte à gauche → modèle à DROITE → caméra à gauche
+                { cam: [-3.0, 1.5, 7], look: [-0.3, 0.3, 0], rotY: 0.5, fov: 36, rimI: 1.0 },
+                // 4 Héritage — texte à droite → modèle à GAUCHE → caméra à droite
+                { cam: [3.8, 0.2, 7], look: [0.5, 0, 0], rotY: -1.2, fov: 40, rimI: 0.7 },
+                // 5 Timeline — centré sur la ligne verticale, modèle en haut de la section
+                { cam: [0, 0, 11], look: [0, 0, 0], rotY: 1.8, fov: 36, rimI: 0.4 },
                 // 6 Jeux — vue basse
-                { cam: [0, -0.8, 11], look: [0, -0.4, 0], rotY: 2.2, fov: 42, rimI: 0.5 },
-                // 7 Outro — caméra recule puis centré pour l'effet texte-arrière
-                { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.0, fov: 38, rimI: 0.8 },
+                { cam: [0, -0.5, 11], look: [0, -0.3, 0], rotY: 2.5, fov: 42, rimI: 0.5 },
+                // 7 Outro — centré, effet texte-arrière
+                { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.0, fov: 38, rimI: 0.9 },
             ];
 
             let currentPanelIdx = 0;
@@ -1397,10 +1379,7 @@
                     model.position.y = modelCenteredY + Math.sin(time * 0.7) * 0.08;
                 }
 
-                /* Particules */
-                if (window._particles) {
-                    window._particles.rotation.y += 0.0005;
-                }
+                /* pas de particules */
 
                 renderer.render(scene, camera);
             }
