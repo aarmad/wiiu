@@ -1215,34 +1215,45 @@
             })();
 
             /* ── État de caméra cible (lerp) ── */
-            const camTarget = { x: 0, y: 0.4, z: 6 };
+            const camTarget = { x: 0, y: 0, z: 10 };
             const lookTarget = { x: 0, y: 0, z: 0 };
-            let modelRotY = 0;     // rotation cible du modèle
-            let modelOrbitY = 0;     // auto-rotation continue
+            let modelRotY = 0;
+            let modelOrbitY = 0;
+
+            /* Position initiale caméra déjà reculée pour pas de saut */
+            camera.position.set(0, 0, 10);
 
             /* ── Charger le GLTF ── */
-            let model = null, modelScale = 1;
+            let model = null;
             const loader = new THREE.GLTFLoader();
             loader.load('assets/wiiu/scene.gltf', (gltf) => {
                 model = gltf.scene;
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-                const maxDim = Math.max(size.x, size.y, size.z);
-                modelScale = 3.6 / maxDim;
-                model.position.sub(center.multiplyScalar(modelScale));
-                model.scale.setScalar(modelScale);
-                model.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+
+                /* 1. Mesurer le modèle dans son état original */
+                const box1 = new THREE.Box3().setFromObject(model);
+                const size1 = box1.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size1.x, size1.y, size1.z);
+
+                /* 2. Appliquer l'échelle d'abord */
+                const scale = 3.5 / maxDim;
+                model.scale.setScalar(scale);
+
+                /* 3. Recentrer en espace monde après l'échelle */
+                const box2 = new THREE.Box3().setFromObject(model);
+                const center = box2.getCenter(new THREE.Vector3());
+                model.position.x -= center.x;
+                model.position.y -= center.y;   /* ← centre vertical exact */
+                model.position.z -= center.z;
+
+                model.traverse(c => {
+                    if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
+                });
                 scene.add(model);
 
-                /* Recentrer précisément en Y après mise à l'échelle */
-                const box2 = new THREE.Box3().setFromObject(model);
-                const c2 = box2.getCenter(new THREE.Vector3());
-                model.position.y -= c2.y;   /* force le centre géométrique à y=0 */
-
-                /* Distance optimale pour voir tout le modèle */
-                const dist = (maxDim * modelScale / 2) / Math.tan(THREE.MathUtils.degToRad(36 / 2)) * 1.5;
-                camTarget.z = Math.min(Math.max(dist, 7), 11);
+                /* 4. Distance caméra calculée sur la taille mise à l'échelle */
+                const scaledMax = Math.max(size1.x, size1.y, size1.z) * scale;
+                const dist = (scaledMax / 2) / Math.tan(THREE.MathUtils.degToRad(36 / 2)) * 1.7;
+                camTarget.z = Math.min(Math.max(dist, 7), 13);
                 camTarget.y = 0;
             }, null, () => {
                 /* Fallback gamepad géométrique */
