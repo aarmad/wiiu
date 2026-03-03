@@ -1225,6 +1225,7 @@
 
             /* ── Charger le GLTF ── */
             let model = null;
+            let modelCenteredY = 0; /* décalage vertical calculé après centrage */
             const loader = new THREE.GLTFLoader();
             loader.load('assets/wiiu/scene.gltf', (gltf) => {
                 model = gltf.scene;
@@ -1244,6 +1245,7 @@
                 model.position.x -= center.x;
                 model.position.y -= center.y;   /* ← centre vertical exact */
                 model.position.z -= center.z;
+                modelCenteredY = model.position.y; /* mémorise l'offset Y correct */
 
                 model.traverse(c => {
                     if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
@@ -1388,11 +1390,11 @@
                 );
                 camera.lookAt(_look);
 
-                /* Animation modèle */
+                /* Animation modèle : oscille AUTOUR du centre calculé */
                 if (model) {
                     model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + time * 0.18, 0.03);
-                    // Légère oscillation Y
-                    model.position.y = Math.sin(time * 0.7) * 0.08;
+                    /* Float = offset de centrage + légère oscillation sinusoïdale */
+                    model.position.y = modelCenteredY + Math.sin(time * 0.7) * 0.08;
                 }
 
                 /* Particules */
