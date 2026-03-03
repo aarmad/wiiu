@@ -415,28 +415,7 @@
             flex-shrink: 0;
         }
 
-        /* ───── Scroll indicator ───── */
-        .scroll-hint {
-            position: absolute;
-            bottom: 2.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: .5rem;
-            color: var(--muted);
-            font-size: .72rem;
-            text-transform: uppercase;
-            letter-spacing: .12em;
-            animation: fadeUpDown 2.2s ease-in-out infinite;
-        }
-
-        .scroll-hint-line {
-            width: 1px;
-            height: 40px;
-            background: linear-gradient(to bottom, var(--accent), transparent);
-        }
+        /* Scroll indicator supprimé */
 
         .ticker-wrap {
             pointer-events: none;
@@ -677,7 +656,7 @@
             justify-content: center;
             align-items: center;
             padding: 6rem 5vw;
-            min-height: 80vh;
+            min-height: 100vh;
             background: rgba(4, 12, 18, 0.55);
             backdrop-filter: none;
             /* pas de blur : on veut voir le 3D derrière*/
@@ -887,10 +866,6 @@
                 </div>
             </div>
 
-            <div class="scroll-hint">
-                <div class="scroll-hint-line"></div>
-                scroll
-            </div>
         </div>
 
         <!-- 1: TICKER (non-panel, entre deux sections) -->
@@ -1258,19 +1233,19 @@
                 // 0 Hero — centré
                 { cam: [0, 0, 9], look: [0, 0, 0], rotY: 0, fov: 36, rimI: 1.0 },
                 // 1 GamePad — texte GAUCHE → modèle très à DROITE → cam très à gauche
-                { cam: [-7, 0, 7], look: [-1.5, 0, 0], rotY: 0.4, fov: 38, rimI: 1.4 },
+                { cam: [-13, 0, 6], look: [-2.5, 0, 0], rotY: 0.4, fov: 38, rimI: 1.4 },
                 // 2 Console — texte DROITE → modèle très à GAUCHE → cam très à droite
-                { cam: [7, 0, 7], look: [1.5, 0, 0], rotY: -0.6, fov: 38, rimI: 0.6 },
+                { cam: [13, 0, 7], look: [2.5, 0, 0], rotY: -0.6, fov: 38, rimI: 0.6 },
                 // 3 Miiverse — texte GAUCHE → modèle très à DROITE → cam très à gauche
-                { cam: [-6.5, 1, 7], look: [-1.2, 0.2, 0], rotY: 0.5, fov: 38, rimI: 1.0 },
+                { cam: [-12, 1, 7], look: [-2.2, 0.2, 0], rotY: 0.5, fov: 38, rimI: 1.0 },
                 // 4 Héritage — texte DROITE → modèle très à GAUCHE → cam très à droite
-                { cam: [6.5, 0, 7], look: [1.2, 0, 0], rotY: -1.2, fov: 38, rimI: 0.7 },
-                // 5 Timeline — centré sur la ligne verticale
-                { cam: [0, 0, 11], look: [0, 0, 0], rotY: 1.8, fov: 36, rimI: 0.4 },
+                { cam: [12, 0, 7], look: [2.2, 0, 0], rotY: -1.2, fov: 38, rimI: 0.7 },
+                // 5 Timeline — centré sur la ligne verticale, gelé
+                { cam: [0, 0, 11], look: [0, 0, 0], rotY: 0, fov: 34, rimI: 0.4 },
                 // 6 Jeux — vue basse
-                { cam: [0, -0.5, 11], look: [0, -0.3, 0], rotY: 2.5, fov: 42, rimI: 0.5 },
-                // 7 Outro — centré, effet texte-arrière
-                { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.0, fov: 38, rimI: 0.9 },
+                { cam: [0, -0.5, 11], look: [0, -0.3, 0], rotY: 2.2, fov: 42, rimI: 0.5 },
+                // 7 Outro — centré final, gelé
+                { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.14, fov: 38, rimI: 1.0 },
             ];
 
             let currentPanelIdx = 0;
@@ -1300,8 +1275,8 @@
                     revealPanelContent(idx);
                 }
 
-                // Rotation continue basée sur scroll
-                if (model) {
+                // Rotation continue basée sur scroll (gelée pour Timeline et Outro)
+                if (model && currentPanelIdx !== 5 && currentPanelIdx !== 7) {
                     const progress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
                     modelOrbitY = progress * Math.PI * 4;
                 }
@@ -1375,8 +1350,9 @@
                 /* Animation modèle : oscille AUTOUR du centre calculé */
                 if (model) {
                     model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + time * 0.18, 0.03);
-                    /* Float = offset de centrage + légère oscillation sinusoïdale */
-                    model.position.y = modelCenteredY + Math.sin(time * 0.7) * 0.08;
+                    /* Float = offset de centrage + légère oscillation (stop pour Timeline et Outro) */
+                    const dynamicY = (currentPanelIdx === 5 || currentPanelIdx === 7) ? 0 : Math.sin(time * 0.7) * 0.08;
+                    model.position.y = modelCenteredY + dynamicY;
                 }
 
                 /* pas de particules */
