@@ -6,25 +6,1388 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wii U — Archive Interactive</title>
     <meta name="description" content="L'histoire complète de la Nintendo Wii U, la console en avance sur son temps.">
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,900&family=Space+Grotesk:wght@300;400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,700;0,900;1,900&family=Space+Grotesk:wght@300;400;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ═══════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #080808;
+            --surface: #111;
+            --s2: #1a1a1a;
+            --border: rgba(255, 255, 255, 0.07);
+            --accent: #c3f53c;
+            --blue: #0094C8;
+            --red: #e60012;
+            --white: #f0f0f0;
+            --muted: rgba(240, 240, 240, 0.42);
+            --fd: 'Barlow Condensed', sans-serif;
+            --fb: 'Space Grotesk', sans-serif;
+            --ease: 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        html {
+            scroll-behavior: auto;
+        }
+
+        /* géré manuellement */
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: var(--fb);
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════
+   NAV (toujours au-dessus)
+═══════════════════════════════════════════════ */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 2.5rem;
+            background: rgba(8, 8, 8, 0.7);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: -.04em;
+        }
+
+        .nav-logo em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            transition: color .3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--white);
+        }
+
+        .nav-pill {
+            background: var(--accent);
+            color: #000;
+            padding: .5rem 1.3rem;
+            border-radius: 50px;
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-decoration: none;
+            transition: opacity .3s;
+        }
+
+        .nav-pill:hover {
+            opacity: .8;
+        }
+
+        /* ═══════════════════════════════════════════════
+   CANVAS — fixe, plein écran, arrière-plan
+═══════════════════════════════════════════════ */
+        #main-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            display: block;
+        }
+
+        /* ═══════════════════════════════════════════════
+   SCROLL CONTAINER — empile les sections hautes
+═══════════════════════════════════════════════ */
+        #scroll-body {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+            /* le canvas catch les events souris */
+        }
+
+        #scroll-body section,
+        #scroll-body .panel {
+            pointer-events: auto;
+        }
+
+        /* ═══════════════════════════════════════════════
+   PANEL STRUCTURE
+   Chaque panel = 100vh (ou plus) de trigger
+═══════════════════════════════════════════════ */
+        .panel {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* ───── HERO panel ───── */
+        .panel-hero {
+            justify-content: flex-start;
+            padding: 0 5vw;
+        }
+
+        .hero-text {
+            max-width: 520px;
+            padding-top: 100px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .8s ease, transform .8s ease;
+        }
+
+        .hero-text.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: rgba(195, 245, 60, .1);
+            border: 1px solid rgba(195, 245, 60, .3);
+            color: var(--accent);
+            border-radius: 50px;
+            padding: .3rem .9rem;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: 1.6rem;
+        }
+
+        .eyebrow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 1.8s infinite;
+        }
+
+        .big-title {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            line-height: .92;
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            margin-bottom: 1.8rem;
+        }
+
+        .big-title .lime {
+            color: var(--accent);
+        }
+
+        .hero-body {
+            color: var(--muted);
+            font-size: .95rem;
+            line-height: 1.75;
+            max-width: 400px;
+            margin-bottom: 2.2rem;
+        }
+
+        .cta-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-accent {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: var(--accent);
+            color: #000;
+            padding: .85rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: .9rem;
+            cursor: pointer;
+            border: none;
+            transition: all var(--ease);
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(195, 245, 60, .35);
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            background: transparent;
+            color: var(--white);
+            padding: .85rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: .9rem;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: all var(--ease);
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(255, 255, 255, .3);
+            background: rgba(255, 255, 255, .05);
+        }
+
+        /* Stat cards alignées à droite */
+        .stats-col {
+            position: absolute;
+            right: 5vw;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(17, 17, 17, .85);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.2rem 1.6rem;
+            min-width: 150px;
+            backdrop-filter: blur(10px);
+            transition: border-color var(--ease);
+        }
+
+        .stat-card:hover {
+            border-color: rgba(195, 245, 60, .4);
+        }
+
+        .stat-big {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-size: 2.4rem;
+            line-height: 1;
+        }
+
+        .stat-big em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        .stat-lbl {
+            font-size: .72rem;
+            color: var(--muted);
+            margin-top: .3rem;
+        }
+
+        /* ───── Info panels (gauche / droite) ───── */
+        .panel-info {
+            padding: 0 5vw;
+        }
+
+        .panel-info.right {
+            justify-content: flex-end;
+        }
+
+        .info-card {
+            max-width: 440px;
+            background: rgba(10, 10, 10, .82);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.4rem;
+            backdrop-filter: blur(16px);
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity .9s ease, transform .9s ease;
+        }
+
+        .info-card.from-right {
+            transform: translateX(50px);
+        }
+
+        .info-card.in {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tag {
+            display: inline-block;
+            border-radius: 50px;
+            padding: .28rem .9rem;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 1.2rem;
+        }
+
+        .tag-lime {
+            background: rgba(195, 245, 60, .12);
+            color: var(--accent);
+            border: 1px solid rgba(195, 245, 60, .3);
+        }
+
+        .tag-blue {
+            background: rgba(0, 148, 200, .12);
+            color: var(--blue);
+            border: 1px solid rgba(0, 148, 200, .3);
+        }
+
+        .tag-red {
+            background: rgba(230, 0, 18, .12);
+            color: var(--red);
+            border: 1px solid rgba(230, 0, 18, .3);
+        }
+
+        .info-card h2 {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-style: italic;
+            font-size: clamp(2rem, 4vw, 3rem);
+            text-transform: uppercase;
+            line-height: .95;
+            margin-bottom: 1rem;
+        }
+
+        .info-card p {
+            color: var(--muted);
+            font-size: .88rem;
+            line-height: 1.75;
+            margin-bottom: .8rem;
+        }
+
+        .feat-list {
+            list-style: none;
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+        }
+
+        .feat-list li {
+            font-size: .82rem;
+            color: var(--muted);
+            display: flex;
+            gap: .6rem;
+            align-items: flex-start;
+        }
+
+        .feat-list li::before {
+            content: '↗';
+            color: var(--accent);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ───── Scroll indicator ───── */
+        .scroll-hint {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
+            color: var(--muted);
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            animation: fadeUpDown 2.2s ease-in-out infinite;
+        }
+
+        .scroll-hint-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+        }
+
+        /* ─── TICKER ─── */
+        .ticker-wrap {
+            pointer-events: none;
+            overflow: hidden;
+            white-space: nowrap;
+            background: var(--accent);
+            padding: .7rem 0;
+            position: relative;
+            z-index: 20;
+            border-top: none;
+            border-bottom: 2px solid rgba(0, 0, 0, .15);
+        }
+
+        .ticker-inner {
+            display: inline-flex;
+            gap: 3rem;
+            animation: ticker 22s linear infinite;
+        }
+
+        .ticker-item {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #000;
+        }
+
+        .ticker-sep {
+            opacity: .4;
+            color: #000;
+        }
+
+        /* ─── TIMELINE ─── */
+        .panel-timeline {
+            flex-direction: column;
+            align-items: center;
+            padding: 8rem 5vw;
+            min-height: auto;
+            background: rgba(10, 10, 10, .9);
+            backdrop-filter: blur(20px);
+            pointer-events: auto;
+        }
+
+        .section-label {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-style: italic;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            text-transform: uppercase;
+            margin-bottom: 4rem;
+            line-height: 1;
+        }
+
+        .section-label em {
+            color: var(--accent);
+            font-style: normal;
+        }
+
+        .tl-grid {
+            display: grid;
+            grid-template-columns: 1fr 2px 1fr;
+            gap: 0;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .tl-line-col {
+            background: linear-gradient(to bottom, transparent, var(--accent) 10%, var(--accent) 90%, transparent);
+        }
+
+        .tl-left-col,
+        .tl-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            padding: 0 2rem;
+        }
+
+        .tl-card {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.4rem 1.6rem;
+            transition: border-color var(--ease);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease, border-color var(--ease);
+        }
+
+        .tl-card.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tl-card:hover {
+            border-color: rgba(195, 245, 60, .35);
+        }
+
+        .tl-card-date {
+            font-size: .7rem;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-bottom: .5rem;
+        }
+
+        .tl-card h4 {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-size: 1.15rem;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: .4rem;
+        }
+
+        .tl-card p {
+            font-size: .8rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        /* ─── GAMES ─── */
+        .panel-games {
+            flex-direction: column;
+            align-items: center;
+            padding: 8rem 5vw;
+            min-height: auto;
+            background: rgba(8, 8, 8, .92);
+            backdrop-filter: blur(20px);
+            pointer-events: auto;
+        }
+
+        .games-bento {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 3rem;
+        }
+
+        .game-card {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 1.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--ease);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .7s ease, transform .7s ease, border-color var(--ease);
+        }
+
+        .game-card.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .game-card:hover {
+            border-color: rgba(195, 245, 60, .3);
+            transform: translateY(-4px) !important;
+        }
+
+        .game-card.hero-card {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #0076a3, #004466);
+            border-color: rgba(0, 148, 200, .4);
+        }
+
+        .game-num {
+            font-family: var(--fd);
+            font-size: 5rem;
+            font-weight: 900;
+            opacity: .06;
+            position: absolute;
+            top: .5rem;
+            right: 1rem;
+            line-height: 1;
+        }
+
+        .game-chip {
+            display: inline-block;
+            background: rgba(195, 245, 60, .12);
+            color: var(--accent);
+            border-radius: 50px;
+            padding: .22rem .8rem;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            margin-bottom: .9rem;
+        }
+
+        .game-card h3 {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            color: var(--white);
+            margin-bottom: .5rem;
+        }
+
+        .game-card p {
+            font-size: .8rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .arr-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            margin-top: 1.2rem;
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        /* ─── BIG TEXT OUTRO ─── */
+        .panel-outro {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 6rem 5vw;
+            min-height: 60vh;
+            background: rgba(8, 8, 8, .88);
+            backdrop-filter: blur(20px);
+            pointer-events: auto;
+        }
+
+        .giga-text {
+            font-family: var(--fd);
+            font-weight: 900;
+            font-style: italic;
+            font-size: clamp(4rem, 12vw, 11rem);
+            text-transform: uppercase;
+            line-height: .9;
+            text-align: center;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, .1);
+            color: transparent;
+        }
+
+        .giga-text .accent-stroke {
+            -webkit-text-stroke: 1px var(--accent);
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 5rem 5vw 2rem;
+            pointer-events: auto;
+            position: relative;
+            z-index: 20;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .footer-brand p {
+            color: var(--muted);
+            font-size: .85rem;
+            max-width: 260px;
+            margin-top: .8rem;
+        }
+
+        .footer-col h5 {
+            font-family: var(--fd);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 1rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .footer-col ul li a {
+            font-size: .82rem;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color .3s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--white);
+        }
+
+        .footer-bottom {
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .4;
+                transform: scale(1.6);
+            }
+        }
+
+        @keyframes ticker {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        @keyframes fadeUpDown {
+
+            0%,
+            100% {
+                opacity: .3;
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                opacity: .8;
+                transform: translateX(-50%) translateY(8px);
+            }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width:900px) {
+            .stats-col {
+                position: static;
+                transform: none;
+                flex-direction: row;
+                flex-wrap: wrap;
+                margin-top: 2rem;
+            }
+
+            .panel-hero {
+                flex-direction: column;
+                padding-top: 120px;
+            }
+
+            .games-bento {
+                grid-template-columns: 1fr;
+            }
+
+            .game-card.hero-card {
+                grid-column: span 1;
+            }
+
+            .tl-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tl-line-col {
+                display: none;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div id="app"></div>
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-logo">Wii<em>U.</em></div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="scrollToPanel(0);return false;">Accueil</a></li>
+            <li><a href="#" onclick="scrollToPanel(2);return false;">GamePad</a></li>
+            <li><a href="#" onclick="scrollToPanel(3);return false;">Console</a></li>
+            <li><a href="#" onclick="scrollToPanel(5);return false;">Chronologie</a></li>
+        </ul>
+        <a class="nav-pill" href="#" onclick="scrollToPanel(6);return false;">Explorer ↗</a>
+    </nav>
+
+    <!-- CANVAS FIXE -->
+    <canvas id="main-canvas"></canvas>
+
+    <!-- CORPS SCROLLABLE -->
+    <div id="scroll-body">
+
+        <!-- 0: HERO -->
+        <div class="panel panel-hero" id="panel-0">
+            <div class="hero-text" id="hero-text">
+                <div class="eyebrow"><span class="eyebrow-dot"></span>Archive interactive · 2011–2019</div>
+                <h1 class="big-title">LA<br>CONSOLE<br><span class="lime">PERDUE</span><br>DE NINTENDO.</h1>
+                <p class="hero-body">La Wii U : mal comprise, mais révolutionnaire. Découvrez l'histoire de la console
+                    qui a ouvert la voie à la Nintendo Switch.</p>
+                <div class="cta-row">
+                    <button class="btn-accent" onclick="scrollToPanel(1)">Explorer ↗</button>
+                    <button class="btn-outline" onclick="scrollToPanel(5)">⏱ Chronologie</button>
+                </div>
+            </div>
+
+            <div class="stats-col">
+                <div class="stat-card">
+                    <div class="stat-big">13<em>M</em></div>
+                    <div class="stat-lbl">Consoles vendues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-big">208<em>+</em></div>
+                    <div class="stat-lbl">Jeux catalogue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-big">5<em>ans</em></div>
+                    <div class="stat-lbl">Cycle de vie</div>
+                </div>
+            </div>
+
+            <div class="scroll-hint">
+                <div class="scroll-hint-line"></div>
+                scroll
+            </div>
+        </div>
+
+        <!-- 1: TICKER (non-panel, entre deux sections) -->
+        <div class="ticker-wrap" style="pointer-events:auto;">
+            <div class="ticker-inner">
+                <span class="ticker-item">GamePad</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">Miiverse</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">Off-TV Play</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">HD Nintendo</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">Asymétrique</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">GamePad</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">Miiverse</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">Off-TV Play</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">HD Nintendo</span><span class="ticker-sep">✦</span>
+                <span class="ticker-item">Asymétrique</span><span class="ticker-sep">✦</span>
+            </div>
+        </div>
+
+        <!-- 2: GAMEPAD INFO (gauche) -->
+        <div class="panel panel-info" id="panel-1">
+            <div class="info-card" id="card-1">
+                <div class="tag tag-lime">Innovation N°1</div>
+                <h2>Le<br><span style="color:var(--accent)">GamePad.</span></h2>
+                <p>Une manette avec un écran tactile de 6,2 pouces, une caméra, un micro et un NFC. Elle ouvrait une
+                    seconde fenêtre sur le jeu.</p>
+                <p>Le Off-TV Play — jouer sur le GamePad sans télé — a directement inspiré le mode portable de la
+                    Nintendo Switch.</p>
+                <ul class="feat-list">
+                    <li>Écran tactile résistif 6,2 pouces</li>
+                    <li>Gyroscope 6 axes et accéléromètre</li>
+                    <li>NFC intégré pour les Amiibo</li>
+                    <li>Caméra frontale et haut-parleurs</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 3: CONSOLE INFO (droite) -->
+        <div class="panel panel-info right" id="panel-2">
+            <div class="info-card from-right" id="card-2">
+                <div class="tag tag-blue">La Machine</div>
+                <h2>La<br><span style="color:var(--blue)">Console.</span></h2>
+                <p>Première console HD de Nintendo, la Wii U affiche jusqu'en 1080p. Compacte et élégante, elle
+                    embarquait un processeur IBM PowerPC Tri-Core.</p>
+                <p>Compatible avec l'intégralité du catalogue Wii, ses accessoires inclus — une rétrocompatibilité
+                    totale et rare à l'époque.</p>
+                <ul class="feat-list">
+                    <li>Résolution jusqu'en 1080p natif</li>
+                    <li>CPU IBM PowerPC Tri-Core 1,24 GHz</li>
+                    <li>GPU AMD Radeon-based 550 MHz</li>
+                    <li>Rétrocompatible Wii complète</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 4: MIIVERSE (gauche) -->
+        <div class="panel panel-info" id="panel-3">
+            <div class="info-card" id="card-3">
+                <div class="tag tag-red">Réseau social</div>
+                <h2>Miiverse<span style="color:var(--accent)">.</span></h2>
+                <p>Un réseau social intégré directement dans la console. Les joueurs pouvaient poster des dessins faits
+                    au GamePad, commenter et partager leurs exploits in-game.</p>
+                <p>Miiverse a fermé en novembre 2017, mais son esprit de communauté bienveillante reste une inspiration
+                    unique dans l'industrie.</p>
+                <ul class="feat-list">
+                    <li>Dessins faits au stylet tactile</li>
+                    <li>Communautés par jeu</li>
+                    <li>Partage de captures d'écran</li>
+                    <li>Modération humaine exemplaire</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 5: HÉRITAGE (droite) -->
+        <div class="panel panel-info right" id="panel-4">
+            <div class="info-card from-right" id="card-4">
+                <div class="tag tag-lime">Héritage</div>
+                <h2>La<br><span style="color:var(--accent)">Switch.</span></h2>
+                <p>La Wii U était la Nintendo Switch avant la Nintendo Switch. Chaque innovation — écran portable, dock
+                    TV, gameplay asynchrone — a été reprise et perfectionnée.</p>
+                <p>Ses meilleurs jeux ont tous été re-édités sur Switch avec un succès commercial bien plus grand,
+                    prouvant que le problème n'était pas la qualité, mais la communication.</p>
+                <ul class="feat-list">
+                    <li>Off-TV Play → Mode portable Switch</li>
+                    <li>GamePad → Joy-Cons détachables</li>
+                    <li>Miiverse → NSO Feed</li>
+                    <li>Asymétrique → Co-op asymétrique Switch</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 6: TIMELINE -->
+        <div class="panel panel-timeline" id="panel-5">
+            <h2 class="section-label">Chronologie<em>.</em></h2>
+            <div class="tl-grid">
+                <div class="tl-left-col">
+                    <div class="tl-card" id="tl-0">
+                        <div class="tl-card-date">Juin 2011</div>
+                        <h4>Présentation à l'E3</h4>
+                        <p>Dévoilée à l'E3 avec une démo du GamePad. Réaction mitigée : beaucoup confondent le GamePad
+                            avec un accessoire Wii.</p>
+                    </div>
+                    <div class="tl-card" id="tl-2">
+                        <div class="tl-card-date">Décembre 2012</div>
+                        <h4>Lancement de Miiverse</h4>
+                        <p>Le réseau social Miiverse est ouvert. Une innovation sans précédent dans l'industrie du jeu
+                            vidéo.</p>
+                    </div>
+                    <div class="tl-card" id="tl-4">
+                        <div class="tl-card-date">Mai 2014</div>
+                        <h4>Mario Kart 8</h4>
+                        <p>Le jeu de course le plus vendu sur Wii U avec plus de 8 millions d'exemplaires. Un succès
+                            critique et commercial.</p>
+                    </div>
+                    <div class="tl-card" id="tl-6">
+                        <div class="tl-card-date">Mars 2017</div>
+                        <h4>Zelda: Breath of the Wild</h4>
+                        <p>Le chant du cygne de la Wii U. Sorti simultanément sur Switch, il devient l'un des meilleurs
+                            jeux de tous les temps.</p>
+                    </div>
+                    <div class="tl-card" id="tl-8">
+                        <div class="tl-card-date">Janvier 2019</div>
+                        <h4>Fin du support en ligne</h4>
+                        <p>Nintendo met fin aux serveurs Wii U, marquant la fin définitive du cycle de vie de la
+                            console.</p>
+                    </div>
+                </div>
+                <div class="tl-line-col"></div>
+                <div class="tl-right-col" style="padding-top:6rem;">
+                    <div class="tl-card" id="tl-1">
+                        <div class="tl-card-date">Novembre 2012</div>
+                        <h4>Sortie mondiale</h4>
+                        <p>Amérique du Nord le 18 novembre, puis Japon et Europe. Deux modèles : Basic (8 Go) et Deluxe
+                            (32 Go).</p>
+                    </div>
+                    <div class="tl-card" id="tl-3">
+                        <div class="tl-card-date">Novembre 2013</div>
+                        <h4>Super Mario 3D World</h4>
+                        <p>L'un des meilleurs jeux multi de la plateforme. Perfection du platformer coopératif en 3D.
+                        </p>
+                    </div>
+                    <div class="tl-card" id="tl-5">
+                        <div class="tl-card-date">Mai 2015</div>
+                        <h4>Splatoon</h4>
+                        <p>Nouvelle franchise immédiatement culte. Un shooter à l'encre aux idées aussi fraîches que son
+                            gameplay.</p>
+                    </div>
+                    <div class="tl-card" id="tl-7">
+                        <div class="tl-card-date">Janvier 2017</div>
+                        <h4>Annonce de la Switch</h4>
+                        <p>La Switch reprend tous les concepts Wii U en les perfectionnant. Le GamePad devient les
+                            Joy-Cons.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7: JEUX -->
+        <div class="panel panel-games" id="panel-6">
+            <h2 class="section-label">Jeux<br><em>légendaires.</em></h2>
+            <div class="games-bento">
+                <div class="game-card hero-card" id="gc-0">
+                    <div class="game-num">01</div>
+                    <div class="game-chip">Action / Aventure</div>
+                    <h3>Zelda: Breath of the Wild</h3>
+                    <p>Chef-d'œuvre absolu sorti simultanément sur Wii U et Switch. Il a redéfini l'open world moderne.
+                    </p>
+                    <div class="arr-link">En savoir plus ↗</div>
+                </div>
+                <div class="game-card" id="gc-1">
+                    <div class="game-num">02</div>
+                    <div class="game-chip">Shooter</div>
+                    <h3>Splatoon</h3>
+                    <p>Révolution du genre TPS. La carte du GamePad était cruciale.</p>
+                    <div class="arr-link">En savoir plus ↗</div>
+                </div>
+                <div class="game-card" id="gc-2">
+                    <div class="game-num">03</div>
+                    <div class="game-chip">Course</div>
+                    <h3>Mario Kart 8</h3>
+                    <p>8M d'exemplaires, toujours considéré comme le meilleur épisode de la série.</p>
+                    <div class="arr-link">En savoir plus ↗</div>
+                </div>
+                <div class="game-card" id="gc-3">
+                    <div class="game-num">04</div>
+                    <div class="game-chip">Platformer</div>
+                    <h3>Super Mario 3D World</h3>
+                    <p>Perle du coop local, portée avec succès sur Switch en 2021.</p>
+                    <div class="arr-link">En savoir plus ↗</div>
+                </div>
+                <div class="game-card" id="gc-4">
+                    <div class="game-num">05</div>
+                    <div class="game-chip">Action</div>
+                    <h3>Bayonetta 2</h3>
+                    <p>Exclusivité sauvée par Nintendo, accueillie comme un chef-d'œuvre du genre action.</p>
+                    <div class="arr-link">En savoir plus ↗</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8: OUTRO -->
+        <div class="panel panel-outro" id="panel-7">
+            <div class="giga-text">
+                CONCEPTION<br>
+                <span class="accent-stroke">INGÉNIOSITÉ</span><br>
+                HÉRITAGE
+            </div>
+        </div>
+
+        <!-- 9: FOOTER -->
+        <footer class="footer">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="nav-logo" style="font-size:2rem;">Wii<em
+                            style="color:var(--accent);font-style:normal">U.</em></div>
+                    <p>Archive interactive dédiée à la Nintendo Wii U. Réalisée avec Three.js & Vue.js.</p>
+                </div>
+                <div class="footer-col">
+                    <h5>Navigation</h5>
+                    <ul>
+                        <li><a href="#">Accueil</a></li>
+                        <li><a href="#">GamePad</a></li>
+                        <li><a href="#">Chronologie</a></li>
+                        <li><a href="#">Jeux</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Innovations</h5>
+                    <ul>
+                        <li><a href="#">GamePad</a></li>
+                        <li><a href="#">Miiverse</a></li>
+                        <li><a href="#">Off-TV Play</a></li>
+                        <li><a href="#">Affichage HD</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Contact</h5>
+                    <ul>
+                        <li><a href="#">info@wiiuarchive.fr</a></li>
+                        <li><a href="#">Twitter / X</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 Wii U Archive. Tous droits réservés.</span>
+                <span>Fait avec ♥ &amp; Three.js</span>
+            </div>
+        </footer>
+
+    </div><!-- /scroll-body -->
+
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        /* ════════════════════════════════════════════════════════
+           SCENE THREE.JS – canvas fixe, animations au scroll
+        ════════════════════════════════════════════════════════ */
+        (function () {
+            const canvas = document.getElementById('main-canvas');
+            const W = () => window.innerWidth;
+            const H = () => window.innerHeight;
 
-    <script src="three-scene.js"></script>
-    <script src="app.js"></script>
+            /* ── Renderer ── */
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            renderer.setSize(W(), H());
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3;
+            renderer.shadowMap.enabled = true;
+
+            /* ── Scène ── */
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x080808);
+            scene.fog = new THREE.Fog(0x080808, 15, 35);
+
+            /* ── Caméra ── */
+            const camera = new THREE.PerspectiveCamera(38, W() / H(), 0.01, 100);
+            camera.position.set(0, 0.4, 6);
+
+            /* ── Lumières ── */
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            const key = new THREE.DirectionalLight(0xffffff, 1.5);
+            key.position.set(4, 6, 5); key.castShadow = true; scene.add(key);
+            const fill = new THREE.DirectionalLight(0x4488ff, 0.5);
+            fill.position.set(-4, 2, -3); scene.add(fill);
+            const rim = new THREE.DirectionalLight(0xc3f53c, 0.8);
+            rim.position.set(0, 5, -6); scene.add(rim);
+            const bot = new THREE.DirectionalLight(0x0094C8, 0.3);
+            bot.position.set(0, -5, 2); scene.add(bot);
+
+            /* ── Ground ── */
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(30, 30),
+                new THREE.ShadowMaterial({ opacity: 0.25 })
+            );
+            ground.rotation.x = -Math.PI / 2; ground.position.y = -2; ground.receiveShadow = true;
+            scene.add(ground);
+
+            /* ── Particules de fond ── */
+            (function buildParticles() {
+                const N = 200, pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+                for (let i = 0; i < N; i++) {
+                    pos[i * 3] = (Math.random() - 0.5) * 30;
+                    pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+                    pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
+                    const t = Math.random();
+                    col[i * 3] = t < 0.4 ? 0.76 : 0;
+                    col[i * 3 + 1] = t < 0.4 ? 0.96 : t < 0.7 ? 0.58 : 0.04;
+                    col[i * 3 + 2] = t < 0.4 ? 0.24 : t < 0.7 ? 0.78 : 0.08;
+                }
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+                const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.05, vertexColors: true, transparent: true, opacity: 0.65 }));
+                scene.add(pts);
+                window._particles = pts;
+            })();
+
+            /* ── État de caméra cible (lerp) ── */
+            const camTarget = { x: 0, y: 0.4, z: 6 };
+            const lookTarget = { x: 0, y: 0, z: 0 };
+            let modelRotY = 0;     // rotation cible du modèle
+            let modelOrbitY = 0;     // auto-rotation continue
+
+            /* ── Charger le GLTF ── */
+            let model = null, modelScale = 1;
+            const loader = new THREE.GLTFLoader();
+            loader.load('assets/wiiu/scene.gltf', (gltf) => {
+                model = gltf.scene;
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                modelScale = 3.6 / maxDim;
+                model.position.sub(center.multiplyScalar(modelScale));
+                model.scale.setScalar(modelScale);
+                model.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+                scene.add(model);
+                camTarget.z = 6;
+            }, null, () => {
+                /* Fallback gamepad géométrique */
+                const g = model = new THREE.Group();
+                const mat = (c, r = 0.3, m = 0.4) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+                const body = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.4, 2.7), mat(0x1a1a1a));
+                body.castShadow = true; g.add(body);
+                [-1.8, 1.8].forEach(x => { const gr = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 2.0), mat(0x111111, .5)); gr.position.set(x, -0.15, 0); g.add(gr); });
+                const sc = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.05, 2.0), mat(0x0094C8, .1, .1)); sc.position.y = 0.23; g.add(sc);
+                [[-.4, .23, .5, 0xe60012], [.4, .23, .5, 0x00a300], [-.7, .23, .8, 0xffcc00], [.7, .23, .8, 0x0094C8]].forEach(([x, y, z, c]) => { const b = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, .12, 16), mat(c, .2, .4)); b.position.set(x, y + .06, z); g.add(b); });
+                scene.add(g);
+            });
+
+            /* ════════════════════════════
+               DÉFINITIONS DES POSITIONS PAR PANEL
+            ════════════════════════════ */
+            const PANELS = [
+                // 0 Hero: modèle centré, légèrement devant
+                { cam: [0, 0.4, 6], look: [0, 0, 0], rotY: 0.5, fov: 38, lightRim: 0.8 },
+                // 1 GamePad: on s'approche, légèrement à droite (texte gauche)
+                { cam: [1.4, 0.3, 4], look: [0.5, 0, 0], rotY: -0.4, fov: 36, lightRim: 1.2 },
+                // 2 Console: on recule à gauche (texte droite), légère plongée
+                { cam: [-1.5, -0.3, 5], look: [-0.3, -0.2, 0], rotY: 0.8, fov: 40, lightRim: 0.5 },
+                // 3 Miiverse: zoom sur le dessus/écran
+                { cam: [0, 2, 4], look: [0, 0.5, 0], rotY: 0, fov: 34, lightRim: 1.0 },
+                // 4 Héritage: recule, angle trois-quarts
+                { cam: [2, 0.8, 5.5], look: [0.5, 0, 0], rotY: -0.8, fov: 42, lightRim: 0.7 },
+                // 5 Timeline: modèle monte au fond, petit
+                { cam: [0, 0.5, 10], look: [0, 0, 0], rotY: 1.2, fov: 38, lightRim: 0.4 },
+                // 6 Games: angle bas, très recul
+                { cam: [0, -1, 9], look: [0, -0.5, 0], rotY: 2.0, fov: 44, lightRim: 0.6 },
+                // 7 Outro: zoom out extrême
+                { cam: [0, 0, 14], look: [0, 0, 0], rotY: 3.0, fov: 50, lightRim: 0.2 },
+            ];
+
+            let currentPanelIdx = 0;
+
+            /* ════════════════════════════
+               CALCUL DU PANEL COURANT
+            ════════════════════════════ */
+            function getCurrentPanel() {
+                const sy = window.scrollY;
+                const panels = document.querySelectorAll('[id^="panel-"]');
+                let idx = 0;
+                panels.forEach((el, i) => {
+                    if (el.offsetTop - window.innerHeight * 0.4 <= sy) idx = i;
+                });
+                return Math.min(idx, PANELS.length - 1);
+            }
+
+            /* ════════════════════════════
+               SCROLL HANDLER
+            ════════════════════════════ */
+            window.addEventListener('scroll', () => {
+                const idx = getCurrentPanel();
+
+                if (idx !== currentPanelIdx) {
+                    currentPanelIdx = idx;
+                    applyPanelState(idx);
+                    revealPanelContent(idx);
+                }
+
+                // Rotation continue basée sur scroll
+                if (model) {
+                    const progress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+                    modelOrbitY = progress * Math.PI * 4;
+                }
+            });
+
+            function applyPanelState(idx) {
+                const p = PANELS[idx];
+                if (!p) return;
+                camTarget.x = p.cam[0]; camTarget.y = p.cam[1]; camTarget.z = p.cam[2];
+                lookTarget.x = p.look[0]; lookTarget.y = p.look[1]; lookTarget.z = p.look[2];
+                modelRotY = p.rotY;
+                camera.fov = p.fov;
+                camera.updateProjectionMatrix();
+                rim.intensity = p.lightRim;
+            }
+
+            /* ════════════════════════════
+               REVEAL DES ÉLÉMENTS PAR PANEL
+            ════════════════════════════ */
+            function revealPanelContent(idx) {
+                // Infos cards
+                ['card-1', 'card-2', 'card-3', 'card-4'].forEach((id, i) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.classList.toggle('in', idx === i + 1);
+                });
+
+                // Timeline cards
+                if (idx === 5) {
+                    document.querySelectorAll('.tl-card').forEach((el, i) => {
+                        setTimeout(() => el.classList.add('in'), i * 120);
+                    });
+                }
+
+                // Game cards
+                if (idx === 6) {
+                    document.querySelectorAll('.game-card').forEach((el, i) => {
+                        setTimeout(() => el.classList.add('in'), i * 100);
+                    });
+                }
+            }
+
+            /* ════════════════════════════
+               LERP HELPER
+            ════════════════════════════ */
+            function lerp(a, b, t) { return a + (b - a) * t; }
+
+            /* ════════════════════════════
+               BOUCLE PRINCIPALE
+            ════════════════════════════ */
+            const _look = new THREE.Vector3();
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.008;
+
+                /* Lerp caméra */
+                const s = 0.06;
+                camera.position.x = lerp(camera.position.x, camTarget.x, s);
+                camera.position.y = lerp(camera.position.y, camTarget.y, s);
+                camera.position.z = lerp(camera.position.z, camTarget.z, s);
+
+                _look.set(
+                    lerp(_look.x || 0, lookTarget.x, s),
+                    lerp(_look.y || 0, lookTarget.y, s),
+                    lerp(_look.z || 0, lookTarget.z, s)
+                );
+                camera.lookAt(_look);
+
+                /* Animation modèle */
+                if (model) {
+                    model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + time * 0.18, 0.03);
+                    // Légère oscillation Y
+                    model.position.y = Math.sin(time * 0.7) * 0.08;
+                }
+
+                /* Particules */
+                if (window._particles) {
+                    window._particles.rotation.y += 0.0005;
+                }
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            /* ════════════════════════════
+               RESIZE
+            ════════════════════════════ */
+            window.addEventListener('resize', () => {
+                renderer.setSize(W(), H());
+                camera.aspect = W() / H();
+                camera.updateProjectionMatrix();
+            });
+
+            /* Initialisation */
+            setTimeout(() => {
+                document.getElementById('hero-text').classList.add('in');
+                applyPanelState(0);
+            }, 200);
+
+        })();
+
+        /* ── Navigation utilitaire ── */
+        function scrollToPanel(idx) {
+            const el = document.getElementById('panel-' + idx);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 
 </html>
