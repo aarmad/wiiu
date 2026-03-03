@@ -3548,7 +3548,7 @@ section:nth-child(odd):not(.hero) {
 .timeline-item {
     position: relative;
     margin-bottom: 6rem;
-    width: 45%;
+    width: 50%;
     padding: 0 3rem;
     opacity: 0;
     transform: translateY(50px);
@@ -3562,12 +3562,11 @@ section:nth-child(odd):not(.hero) {
 
 .timeline-item:nth-child(odd) {
     left: 0;
-    margin-left: 5%;
+    text-align: right;
 }
 
 .timeline-item:nth-child(even) {
     left: 50%;
-    margin-left: 5%;
 }
 
 .timeline-content {

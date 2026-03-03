@@ -5,6 +5,7 @@ const Timeline = {
         <div class="timeline-item" 
              v-for="(item, index) in timelineItems" 
              :key="item.id"
+             :data-index="index"
              :class="{
                  'visible': isItemVisible(index),
                  'timeline-item-enter': isItemVisible(index)
@@ -140,41 +141,50 @@ const Timeline = {
             }
         },
         
-        updateVisibleItems() {
-            const items = document.querySelectorAll('.timeline-item');
-            const newVisibleItems = [];
+        setupObserver() {
+            const options = {
+                root: null,
+                rootMargin: '-25% 0px -25% 0px',
+                threshold: 0
+            };
             
-            items.forEach((item, index) => {
-                const rect = item.getBoundingClientRect();
-                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+            this.observer = new IntersectionObserver((entries) => {
+                let changed = false;
+                entries.forEach(entry => {
+                    const index = parseInt(entry.target.dataset.index);
+                    if (entry.isIntersecting) {
+                        if (!this.visibleItems.includes(index)) {
+                            this.visibleItems.push(index);
+                            changed = true;
+                        }
+                    } else {
+                        const i = this.visibleItems.indexOf(index);
+                        if (i > -1) {
+                            this.visibleItems.splice(i, 1);
+                            changed = true;
+                        }
+                    }
+                });
                 
-                if (rect.top <= windowHeight * 0.75 && rect.bottom >= windowHeight * 0.25) {
-                    newVisibleItems.push(index);
+                if (changed && this.visibleItems.length > 0) {
+                    this.visibleItems.sort((a, b) => a - b);
+                    this.currentIndex = this.visibleItems[0];
+                    this.progress = ((this.currentIndex + 1) / this.timelineItems.length) * 100;
                 }
-            });
+            }, options);
             
-            this.visibleItems = newVisibleItems;
-            
-            // Mettre à jour la progression
-            if (newVisibleItems.length > 0) {
-                this.currentIndex = newVisibleItems[0];
-                this.progress = ((this.currentIndex + 1) / this.timelineItems.length) * 100;
-            }
-        },
-        
-        handleScroll() {
-            this.updateVisibleItems();
+            setTimeout(() => {
+                const items = document.querySelectorAll('.timeline-item');
+                items.forEach(item => this.observer.observe(item));
+            }, 100);
         }
     },
     
     mounted() {
-        // Initialiser les éléments visibles
+        // Initialiser l'observeur
         this.$nextTick(() => {
-            this.updateVisibleItems();
+            this.setupObserver();
         });
-        
-        // Ajouter l'écouteur de défilement
-        window.addEventListener('scroll', this.handleScroll);
         
         // Animation d'entrée progressive
         setTimeout(() => {
@@ -185,7 +195,9 @@ const Timeline = {
     },
     
     beforeUnmount() {
-        window.removeEventListener('scroll', this.handleScroll);
+        if (this.observer) {
+            this.observer.disconnect();
+        }
     },
     
     watch: {
