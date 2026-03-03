@@ -1157,18 +1157,19 @@
             const H = () => window.innerHeight;
 
             /* ── Renderer ── */
-            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
             renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
             renderer.setSize(W(), H());
             renderer.outputEncoding = THREE.sRGBEncoding;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.3;
+            renderer.toneMappingExposure = 1.4;
             renderer.shadowMap.enabled = true;
+            renderer.setClearColor(0x000000, 0); /* transparent ! */
 
-            /* ── Scène ── */
+            /* ── Scène : pas de background → transparent ── */
             const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x080808);
-            scene.fog = new THREE.Fog(0x080808, 15, 35);
+            /* scene.background retiré : le body CSS fournit le fond */
+            scene.fog = new THREE.FogExp2(0x040c12, 0.028);
 
             /* ── Caméra ── */
             const camera = new THREE.PerspectiveCamera(38, W() / H(), 0.01, 100);
@@ -1233,10 +1234,16 @@
                 model.scale.setScalar(modelScale);
                 model.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
                 scene.add(model);
-                /* Recule la caméra pour que le modèle soit parfaitement centré et visible */
-                const dist = (maxDim / 2) / Math.tan(THREE.MathUtils.degToRad(38 / 2)) * 1.6;
-                camTarget.z = Math.min(Math.max(dist, 7), 10);
-                camTarget.x = 0; camTarget.y = 0.1;
+
+                /* Recentrer précisément en Y après mise à l'échelle */
+                const box2 = new THREE.Box3().setFromObject(model);
+                const c2 = box2.getCenter(new THREE.Vector3());
+                model.position.y -= c2.y;   /* force le centre géométrique à y=0 */
+
+                /* Distance optimale pour voir tout le modèle */
+                const dist = (maxDim * modelScale / 2) / Math.tan(THREE.MathUtils.degToRad(36 / 2)) * 1.5;
+                camTarget.z = Math.min(Math.max(dist, 7), 11);
+                camTarget.y = 0;
             }, null, () => {
                 /* Fallback gamepad géométrique */
                 const g = model = new THREE.Group();
