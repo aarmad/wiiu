@@ -9,47 +9,47 @@ const App = {
             <h1>wii u</h1>
         </div>
         <div class="grid-item head-title">
-            <h2>welcome to nintendo's lost console archive</h2>
+            <h2>bienvenue dans l'archive de la console perdue de nintendo</h2>
         </div>
 
         <!-- NAVIGATION ROW -->
         <div class="grid-item nav-cell" @click="scrollTo('about')">
-            <span>about it</span> <span class="nav-arrow">↗</span>
+            <span>à propos</span> <span class="nav-arrow">↗</span>
         </div>
         <div class="grid-item nav-cell" @click="scrollTo('innovations')">
             <span>innovations</span> <span class="nav-arrow">↗</span>
         </div>
         <div class="grid-item nav-cell" @click="scrollTo('legacy')">
-            <span>legacy</span> <span class="nav-arrow">↗</span>
+            <span>héritage</span> <span class="nav-arrow">↗</span>
         </div>
 
         <!-- ABOUT SECTION -->
         <div id="about" class="grid-item history-cell">
-            <h3>Our history</h3>
-            <p>Back then in 2012, Nintendo introduced the Wii U, a successor to the incredibly successful Wii. It featured a unique GamePad with a built-in touchscreen, aiming to bridge the gap between casual and hardcore gamers.</p>
-            <p>Despite its innovative concepts, it struggled to find a massive audience, selling only 13.56 million units worldwide. Yet, it paved the way for the hybrid future of gaming.</p>
+            <h3>Notre histoire</h3>
+            <p>En 2012, Nintendo a introduit la Wii U, successeur de l'incroyablement populaire Wii. Elle présentait un GamePad unique avec un écran tactile intégré, visant à combler le fossé entre les joueurs occasionnels et hardcore.</p>
+            <p>Malgré ses concepts novateurs, elle a eu du mal à trouver un public massif, ne s'écoulant qu'à 13,56 millions d'exemplaires dans le monde. Pourtant, elle a ouvert la voie à l'avenir hybride du jeu vidéo.</p>
         </div>
         
         <div class="grid-item center-3d-cell">
-            <ThreeScene />
+            <ThreeScene model="gamepad" />
         </div>
         
         <div class="grid-item history-cell vision-cell">
-            <p>The vision was to create a dual-screen experience, allowing asynchronous multiplayer and Off-TV Play. This idea eventually evolved into the massively successful Nintendo Switch.</p>
+            <p>La vision était de créer une expérience à double écran, permettant un multijoueur asynchrone et le mode Off-TV Play. Cette idée a finalement évolué pour donner naissance à l'énorme succès qu'est la Nintendo Switch.</p>
         </div>
 
         <!-- NOWADAYS ROW -->
         <div class="grid-item nowadays-title">
-            <h3>Nowadays</h3>
+            <h3>De nos jours</h3>
         </div>
         <div class="grid-item nowadays-content-1">
-            <p>After being discontinued in 2017, the Wii U has become a cult classic. Many of its best games have been ported to the Nintendo Switch, proving its software library was top-tier.</p>
+            <p>Depuis l'arrêt de sa production en 2017, la Wii U est devenue culte. Beaucoup de ses meilleurs jeux ont été portés sur la Nintendo Switch, prouvant que sa ludothèque était d'excellente qualité.</p>
         </div>
         <div class="grid-item nowadays-content-2">
-            <p>The GamePad remains a unique piece of hardware that offered possibilities no other console could replicate, such as the asymmetric gameplay in Nintendoland.</p>
+            <p>Le GamePad reste un matériel unique qui offrait des possibilités qu'aucune autre console ne pouvait reproduire, comme le gameplay asymétrique dans Nintendo Land.</p>
         </div>
         <div class="grid-item nowadays-content-3">
-            <p style="font-weight: bold; font-size: 1.2rem; text-align:right;">“We have a special place in our hearts for the Wii U. It was a beautiful transition.”</p>
+            <p style="font-weight: bold; font-size: 1.2rem; text-align:right;">« Nous avons une place spéciale dans nos cœurs pour la Wii U. Ce fut une magnifique transition. »</p>
         </div>
 
         <!-- BANNER ROW -->
@@ -59,72 +59,72 @@ const App = {
 
         <!-- INNOVATIONS SECTION -->
         <div id="innovations" class="grid-item service-cell">
-            <h3>The GamePad</h3>
-            <p>A controller with a 6.2-inch touchscreen, camera, microphone, and NFC support. It allowed players to experience a second window into the game world.</p>
-            <div class="learn-more">Learn More</div>
+            <h3>La Console</h3>
+            <p>Une machine compacte avec des bords arrondis, dotée de la première architecture HD de Nintendo. Elle a discrètement posé les bases de l'écosystème moderne de la firme.</p>
+            <div class="learn-more">En savoir plus</div>
         </div>
         
         <div class="grid-item service-3d-cell">
-            <ThreeScene />
+            <ThreeScene model="console" />
         </div>
         
         <div class="grid-item service-cell-2">
             <h3>Miiverse</h3>
-            <p>Nintendo's first attempt at a dedicated social network. Players could share drawings, screenshots, and tips directly from their console, fostering a wholesome community.</p>
-            <div class="learn-more">Learn More</div>
+            <p>La première tentative de Nintendo de créer un réseau social dédié. Les joueurs pouvaient partager des dessins, des captures d'écran et des astuces directement depuis leur console, favorisant une communauté bienveillante.</p>
+            <div class="learn-more">En savoir plus</div>
         </div>
 
         <!-- GAMES / LEGACY -->
         <div id="legacy" class="grid-item success-banner">
-            <h3>Legacy Cases</h3>
+            <h3>Titres de Légende</h3>
         </div>
         
         <div class="grid-item history-cell">
             <h3>Zelda: Breath of the Wild ↗</h3>
-            <p>Released simultaneously as a swan song for the Wii U and a launch title for the Switch, it became one of the greatest games ever made.</p>
+            <p>Sorti simultanément comme le chant du cygne de la Wii U et titre de lancement de la Switch, il est devenu l'un des plus grands jeux de tous les temps.</p>
         </div>
         <div class="grid-item history-cell">
             <h3>Splatoon ↗</h3>
-            <p>A completely new IP that revolutionized multiplayer shooters. The GamePad map functionality was crucial to its innovative paint-based gameplay.</p>
+            <p>Une toute nouvelle licence qui a révolutionné les jeux de tir multijoueurs. La carte affichée sur le GamePad était cruciale pour son gameplay novateur basé sur la peinture.</p>
         </div>
         <div class="grid-item history-cell">
             <h3>Super Mario 3D World ↗</h3>
-            <p>A masterclass in level design that brought 4-player 3D Mario to life, proving the Wii U could deliver unparalleled local multiplayer fun.</p>
+            <p>Une masterclass en conception de niveaux qui a donné vie au jeu Mario 3D à 4 joueurs, prouvant que la Wii U pouvait offrir un plaisir multijoueur local inégalé.</p>
         </div>
 
         <!-- CONTACTS STRIP -->
         <div class="grid-item nowadays-title" style="background:#000; color:#fff;">
-            <h3>tell us</h3>
+            <h3>Dites-nous tout</h3>
         </div>
 
         <!-- CONTACT & FORM -->
         <div class="grid-item contact-left">
-            <h3>We know</h3>
-            <p>The best memories come unexpectedly. That's why we archive the Wii U. Share your favorite GamePad moment with us.</p>
+            <h3>Nous savons</h3>
+            <p>Les meilleurs souvenirs surviennent de manière inattendue. C'est pourquoi nous archivons la Wii U. Partagez avec nous votre moment GamePad préféré.</p>
             
             <div style="width: 200px; height: 200px; border-radius: 50%; background: #0094C8; margin-top:2rem; display:flex; align-items:center; justify-content:center; color:white; font-size:3rem; border: var(--grid-border);">*</div>
         </div>
         
         <div class="grid-item contact-form-side">
-            <h3>Let's Talk</h3>
+            <h3>Parlons-en</h3>
             <div style="display:flex; gap:1rem; margin-top:1rem;">
                 <div style="flex:1;">
-                    <label>Name</label>
+                    <label>Nom</label>
                     <input type="text" class="brutal-input" placeholder="Miyamoto">
                 </div>
                 <div style="flex:1;">
-                    <label>Email</label>
+                    <label>E-mail</label>
                     <input type="text" class="brutal-input" placeholder="mario@nintendo.com">
                 </div>
             </div>
             <div>
-                <label>Subject</label>
+                <label>Sujet</label>
                 <textarea class="brutal-input" rows="4"></textarea>
             </div>
-            <button class="brutal-btn">SUBMIT ↗</button>
+            <button class="brutal-btn">ENVOYER ↗</button>
             
             <div style="margin-top:2rem;">
-                <h3>Follow us</h3>
+                <h3>Suivez-nous</h3>
                 <div style="display:flex; gap:1rem; font-size:2rem; margin-top:1rem;">
                     <i class="fab fa-twitter"></i>
                     <i class="fab fa-facebook"></i>
@@ -139,10 +139,10 @@ const App = {
             <h2>wii u</h2>
         </div>
         <div class="grid-item" style="grid-column: span 3; border-right:var(--grid-border); border-bottom:none; display:flex; flex-direction:column; gap:0.5rem; text-transform:uppercase;">
-            <div style="border-bottom: var(--grid-border); padding-bottom: 0.5rem;"><strong>about it ↗</strong></div>
-            <div>our history</div>
-            <div>team</div>
-            <div>cases</div>
+            <div style="border-bottom: var(--grid-border); padding-bottom: 0.5rem;"><strong>à propos ↗</strong></div>
+            <div>notre histoire</div>
+            <div>équipe</div>
+            <div>jeux</div>
         </div>
         <div class="grid-item" style="grid-column: span 3; border-right:var(--grid-border); border-bottom:none; display:flex; flex-direction:column; gap:0.5rem; text-transform:uppercase;">
             <div style="border-bottom: var(--grid-border); padding-bottom: 0.5rem;"><strong>innovations ↗</strong></div>
@@ -158,7 +158,7 @@ const App = {
         </div>
 
         <div class="copyright">
-            Copyright © 2026 Wii U Archive. All rights reserved. <strong>Privacy Policy</strong> and <strong>Conditions of Use</strong>
+            Copyright © 2026 Wii U Archive. Tous droits réservés. <strong>Politique de confidentialité</strong> et <strong>Conditions d'utilisation</strong>
         </div>
     </div>
     `,

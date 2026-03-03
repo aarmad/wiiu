@@ -1,5 +1,11 @@
 // Composant Three.js pour la scène 3D de la Wii U - Version avec objet centré
 const ThreeScene = {
+    props: {
+        model: {
+            type: String,
+            default: 'gamepad'
+        }
+    },
     template: '<div class="three-scene-container" ref="sceneContainer"></div>',
 
     mounted() {
@@ -85,8 +91,14 @@ const ThreeScene = {
             backLight.position.set(0, 3, -5);
             this.scene.add(backLight);
 
-            // Créer le GamePad stylisé de la Wii U
-            this.createGamePad();
+            // Créer l'objet en fonction de la prop
+            if (this.model === 'console') {
+                this.createConsole();
+            } else if (this.model === 'disc') {
+                this.createDisc();
+            } else {
+                this.createGamePad();
+            }
 
             // Ajouter des particules pour l'effet de fond
             this.createParticles();
@@ -379,6 +391,69 @@ const ThreeScene = {
             this.scene.add(this.particleSystem);
         },
 
+        createConsole() {
+            this.gamePad = new THREE.Group();
+
+            // Corps de la console
+            const bodyGeometry = new THREE.BoxGeometry(4, 1.2, 5.5);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x111111, shininess: 80, specular: 0x333333 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            this.gamePad.add(body);
+
+            // Fente CD
+            const slotGeometry = new THREE.BoxGeometry(3, 0.05, 0.2);
+            const slotMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const slot = new THREE.Mesh(slotGeometry, slotMaterial);
+            slot.position.set(0, 0.1, 2.75);
+            this.gamePad.add(slot);
+
+            // Bouton Power
+            const btnGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 16);
+            const btnMaterial = new THREE.MeshPhongMaterial({ color: 0xe60012 });
+            const btn = new THREE.Mesh(btnGeometry, btnMaterial);
+            btn.rotation.x = Math.PI / 2;
+            btn.position.set(-1.5, -0.2, 2.75);
+            this.gamePad.add(btn);
+
+            // Bouton Eject
+            const ejectGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.1, 16);
+            const ejectMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 });
+            const eject = new THREE.Mesh(ejectGeometry, ejectMaterial);
+            eject.rotation.x = Math.PI / 2;
+            eject.position.set(-1.2, -0.2, 2.75);
+            this.gamePad.add(eject);
+
+            this.gamePad.position.y = 0.6;
+            this.scene.add(this.gamePad);
+        },
+
+        createDisc() {
+            this.gamePad = new THREE.Group();
+
+            // Disque principal
+            const discGeometry = new THREE.CylinderGeometry(2, 2, 0.05, 64);
+            const discMaterial = new THREE.MeshPhongMaterial({ color: 0x0094C8, shininess: 120, specular: 0xaaaaaa });
+            const disc = new THREE.Mesh(discGeometry, discMaterial);
+            disc.castShadow = true;
+            disc.rotation.x = Math.PI / 2;
+
+            // Trou au centre
+            const holeGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.06, 32);
+            const holeMaterial = new THREE.MeshBasicMaterial({ color: 0x001122 });
+            const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+            hole.rotation.x = Math.PI / 2;
+
+            this.gamePad.add(disc);
+            this.gamePad.add(hole);
+
+            this.gamePad.position.y = 1.5;
+            this.scene.add(this.gamePad);
+
+            this.isDisc = true;
+        },
+
         createGround() {
             // Créer un sol discret pour les ombres
             const groundGeometry = new THREE.PlaneGeometry(20, 20);
@@ -398,6 +473,12 @@ const ThreeScene = {
 
             if (this.controls) {
                 this.controls.update();
+            }
+
+            // Animation continue si c'est le disque
+            if (this.gamePad && this.isDisc) {
+                this.gamePad.rotation.z += 0.01;
+                this.gamePad.position.y = 1.5 + Math.sin(Date.now() * 0.002) * 0.1;
             }
 
             // Faire tourner les particules
