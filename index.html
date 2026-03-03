@@ -24,15 +24,16 @@
         }
 
         :root {
-            --bg: #080808;
-            --surface: #111;
-            --s2: #1a1a1a;
-            --border: rgba(255, 255, 255, 0.07);
-            --accent: #c3f53c;
-            --blue: #0094C8;
+            --bg: #040c12;
+            --surface: #080f16;
+            --s2: #0d1820;
+            --border: rgba(0, 148, 200, 0.15);
+            --accent: #0094C8;
+            --accent-light: #4db8e0;
+            --accent-glow: rgba(0, 148, 200, 0.35);
             --red: #e60012;
-            --white: #f0f0f0;
-            --muted: rgba(240, 240, 240, 0.42);
+            --white: #e8f4fa;
+            --muted: rgba(180, 220, 240, 0.45);
             --fd: 'Barlow Condensed', sans-serif;
             --fb: 'Space Grotesk', sans-serif;
             --ease: 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -127,8 +128,12 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 0;
+            z-index: 15;
+            /* devant les panels normaux (z:10), */
+            /* derrière la nav (z:200)            */
             display: block;
+            pointer-events: none;
+            /* les panels reçoivent les clics */
         }
 
         /* ═══════════════════════════════════════════════
@@ -138,7 +143,6 @@
             position: relative;
             z-index: 10;
             pointer-events: none;
-            /* le canvas catch les events souris */
         }
 
         #scroll-body section,
@@ -180,8 +184,8 @@
             display: inline-flex;
             align-items: center;
             gap: .5rem;
-            background: rgba(195, 245, 60, .1);
-            border: 1px solid rgba(195, 245, 60, .3);
+            background: rgba(0, 148, 200, .1);
+            border: 1px solid rgba(0, 148, 200, .3);
             color: var(--accent);
             border-radius: 50px;
             padding: .3rem .9rem;
@@ -434,7 +438,6 @@
             background: linear-gradient(to bottom, var(--accent), transparent);
         }
 
-        /* ─── TICKER ─── */
         .ticker-wrap {
             pointer-events: none;
             overflow: hidden;
@@ -444,7 +447,15 @@
             position: relative;
             z-index: 20;
             border-top: none;
-            border-bottom: 2px solid rgba(0, 0, 0, .15);
+            border-bottom: 2px solid rgba(0, 0, 0, .3);
+        }
+
+        .ticker-item {
+            color: #fff;
+        }
+
+        .ticker-sep {
+            color: rgba(255, 255, 255, .35);
         }
 
         .ticker-inner {
@@ -530,7 +541,8 @@
         }
 
         .tl-card:hover {
-            border-color: rgba(195, 245, 60, .35);
+            border-color: var(--accent-glow, rgba(0, 148, 200, .4));
+            box-shadow: 0 0 20px rgba(0, 148, 200, .08);
         }
 
         .tl-card-date {
@@ -596,7 +608,8 @@
         }
 
         .game-card:hover {
-            border-color: rgba(195, 245, 60, .3);
+            border-color: rgba(0, 148, 200, .45);
+            box-shadow: 0 0 30px rgba(0, 148, 200, .1);
             transform: translateY(-4px) !important;
         }
 
@@ -619,8 +632,9 @@
 
         .game-chip {
             display: inline-block;
-            background: rgba(195, 245, 60, .12);
+            background: rgba(0, 148, 200, .15);
             color: var(--accent);
+            border: 1px solid rgba(0, 148, 200, .3);
             border-radius: 50px;
             padding: .22rem .8rem;
             font-size: .68rem;
@@ -657,15 +671,20 @@
         }
 
         /* ─── BIG TEXT OUTRO ─── */
+        /* z-index < canvas (15) → le modèle 3D passe au premier plan */
         .panel-outro {
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 6rem 5vw;
-            min-height: 60vh;
-            background: rgba(8, 8, 8, .88);
-            backdrop-filter: blur(20px);
+            min-height: 80vh;
+            background: rgba(4, 12, 18, 0.55);
+            backdrop-filter: none;
+            /* pas de blur : on veut voir le 3D derrière*/
             pointer-events: auto;
+            position: relative;
+            z-index: 5;
+            /* SOUS le canvas fixe (z:15) → 3D au 1er plan */
         }
 
         .giga-text {
@@ -676,12 +695,12 @@
             text-transform: uppercase;
             line-height: .9;
             text-align: center;
-            -webkit-text-stroke: 1px rgba(255, 255, 255, .1);
+            -webkit-text-stroke: 1.5px rgba(255, 255, 255, .08);
             color: transparent;
         }
 
         .giga-text .accent-stroke {
-            -webkit-text-stroke: 1px var(--accent);
+            -webkit-text-stroke: 1.5px var(--accent);
         }
 
         /* ─── FOOTER ─── */
@@ -1161,9 +1180,9 @@
             key.position.set(4, 6, 5); key.castShadow = true; scene.add(key);
             const fill = new THREE.DirectionalLight(0x4488ff, 0.5);
             fill.position.set(-4, 2, -3); scene.add(fill);
-            const rim = new THREE.DirectionalLight(0xc3f53c, 0.8);
+            const rim = new THREE.DirectionalLight(0x0094C8, 1.0);
             rim.position.set(0, 5, -6); scene.add(rim);
-            const bot = new THREE.DirectionalLight(0x0094C8, 0.3);
+            const bot = new THREE.DirectionalLight(0x4db8e0, 0.4);
             bot.position.set(0, -5, 2); scene.add(bot);
 
             /* ── Ground ── */
@@ -1214,7 +1233,10 @@
                 model.scale.setScalar(modelScale);
                 model.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
                 scene.add(model);
-                camTarget.z = 6;
+                /* Recule la caméra pour que le modèle soit parfaitement centré et visible */
+                const dist = (maxDim / 2) / Math.tan(THREE.MathUtils.degToRad(38 / 2)) * 1.6;
+                camTarget.z = Math.min(Math.max(dist, 7), 10);
+                camTarget.x = 0; camTarget.y = 0.1;
             }, null, () => {
                 /* Fallback gamepad géométrique */
                 const g = model = new THREE.Group();
@@ -1231,22 +1253,22 @@
                DÉFINITIONS DES POSITIONS PAR PANEL
             ════════════════════════════ */
             const PANELS = [
-                // 0 Hero: modèle centré, légèrement devant
-                { cam: [0, 0.4, 6], look: [0, 0, 0], rotY: 0.5, fov: 38, lightRim: 0.8 },
-                // 1 GamePad: on s'approche, légèrement à droite (texte gauche)
-                { cam: [1.4, 0.3, 4], look: [0.5, 0, 0], rotY: -0.4, fov: 36, lightRim: 1.2 },
-                // 2 Console: on recule à gauche (texte droite), légère plongée
-                { cam: [-1.5, -0.3, 5], look: [-0.3, -0.2, 0], rotY: 0.8, fov: 40, lightRim: 0.5 },
-                // 3 Miiverse: zoom sur le dessus/écran
-                { cam: [0, 2, 4], look: [0, 0.5, 0], rotY: 0, fov: 34, lightRim: 1.0 },
-                // 4 Héritage: recule, angle trois-quarts
-                { cam: [2, 0.8, 5.5], look: [0.5, 0, 0], rotY: -0.8, fov: 42, lightRim: 0.7 },
-                // 5 Timeline: modèle monte au fond, petit
-                { cam: [0, 0.5, 10], look: [0, 0, 0], rotY: 1.2, fov: 38, lightRim: 0.4 },
-                // 6 Games: angle bas, très recul
-                { cam: [0, -1, 9], look: [0, -0.5, 0], rotY: 2.0, fov: 44, lightRim: 0.6 },
-                // 7 Outro: zoom out extrême
-                { cam: [0, 0, 14], look: [0, 0, 0], rotY: 3.0, fov: 50, lightRim: 0.2 },
+                // 0 Hero — centré, loin (modèle entier visible)
+                { cam: [0, 0.1, 9], look: [0, 0, 0], rotY: 0, fov: 36, rimI: 1.0 },
+                // 1 GamePad — légère droite, caméra proche
+                { cam: [1.8, 0.2, 6], look: [0.3, 0, 0], rotY: -0.5, fov: 34, rimI: 1.4 },
+                // 2 Console — gauche, plongée douce
+                { cam: [-1.8, -0.2, 7], look: [-0.2, -0.1, 0], rotY: 0.9, fov: 38, rimI: 0.6 },
+                // 3 Miiverse — vue plongeante de dessus
+                { cam: [0, 3, 6], look: [0, 0.5, 0], rotY: 0, fov: 34, rimI: 1.0 },
+                // 4 Héritage — trois-quarts, recul
+                { cam: [2.2, 0.5, 8], look: [0.4, 0, 0], rotY: -1.0, fov: 40, rimI: 0.7 },
+                // 5 Timeline — très reculé, en fond
+                { cam: [0, 0.4, 13], look: [0, 0, 0], rotY: 1.5, fov: 36, rimI: 0.3 },
+                // 6 Jeux — vue basse
+                { cam: [0, -0.8, 11], look: [0, -0.4, 0], rotY: 2.2, fov: 42, rimI: 0.5 },
+                // 7 Outro — caméra recule puis centré pour l'effet texte-arrière
+                { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.0, fov: 38, rimI: 0.8 },
             ];
 
             let currentPanelIdx = 0;
@@ -1291,7 +1313,7 @@
                 modelRotY = p.rotY;
                 camera.fov = p.fov;
                 camera.updateProjectionMatrix();
-                rim.intensity = p.lightRim;
+                rim.intensity = p.rimI;
             }
 
             /* ════════════════════════════
