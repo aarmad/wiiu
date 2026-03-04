@@ -1215,8 +1215,8 @@
                 { cam: [0, 0, 9], look: [0, 0, 0], modX: 0, modY: 0, rotY: 0, fov: 34, rimI: 0.4 },
                 // 6 Jeux — vue légèrement basse
                 { cam: [0, -0.5, 9], look: [0, 0, 0], modX: 0, modY: -0.3, rotY: 2.2, fov: 42, rimI: 0.5 },
-                // 7 Outro — centré pile au milieu du giga-text
-                { cam: [0, 0, 8.5], look: [0, 0, 0], modX: 0, modY: 0.8, rotY: 3.14, fov: 38, rimI: 1.0 },
+                // 7 Outro — centré pile au milieu du giga-text, rotation libre
+                { cam: [0, 0, 8.8], look: [0, 0, 0], modX: 0, modY: 1.1, rotY: 3.14, fov: 38, rimI: 1.0 },
             ];
 
             let currentPanelIdx = 0;
@@ -1246,13 +1246,13 @@
                     revealPanelContent(idx);
                 }
 
-                // Rotation continue basée sur scroll (gelée pour Hero, Timeline et Outro)
+                // Rotation continue basée sur scroll (gelée pour Hero, GamePad et Timeline)
                 if (model) {
-                    if (currentPanelIdx === 0 || currentPanelIdx === 1 || currentPanelIdx === 5 || currentPanelIdx === 7) {
+                    if (currentPanelIdx === 0 || currentPanelIdx === 1 || currentPanelIdx === 5) {
                         modelOrbitY = 0;
                     } else {
                         const progress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-                        modelOrbitY = progress * Math.PI * 4;
+                        modelOrbitY = progress * Math.PI * 2.5; /* réduit pour moins de frénésie */
                     }
                 }
             });
@@ -1330,13 +1330,17 @@
 
                 /* Animation modèle : oscille AUTOUR du centre calculé */
                 if (model) {
-                    const isFrozen = (currentPanelIdx === 0 || currentPanelIdx === 1 || currentPanelIdx === 5 || currentPanelIdx === 7);
+                    const isFrozen = (currentPanelIdx === 0 || currentPanelIdx === 1 || currentPanelIdx === 5);
 
                     /* Rotation : drift temporel désactivé si gelé */
                     const drift = isFrozen ? 0 : time * 0.18;
-                    /* Vitesse de lerp augmentée si gelé pour éviter tout mouvement résiduel */
-                    const rotSpeed = isFrozen ? 0.15 : 0.03;
-                    model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + drift, rotSpeed);
+                    const targetRot = modelRotY + modelOrbitY + drift;
+
+                    /* Shortest path rotation (évite les tours infinis au changement de section) */
+                    const curRot = model.rotation.y;
+                    const rotDiff = ((targetRot - curRot + Math.PI) % (Math.PI * 2)) - Math.PI;
+                    const rotSpeed = isFrozen ? 0.12 : 0.04;
+                    model.rotation.y += rotDiff * rotSpeed;
 
                     /* Position X/Y : applique les offsets et le centrage */
                     model.position.x = modelCenteredX + modelX;
