@@ -1201,20 +1201,20 @@
             const PANELS = [
                 // 0 Hero — centré, immobile
                 { cam: [0, 0, 9], look: [0, 0, 0], modX: 0, modY: 0, rotY: 0, fov: 36, rimI: 1.0 },
-                // 1 GamePad — texte GAUCHE → modèle très à DROITE
-                { cam: [0, 0, 6.5], look: [0, 0, 0], modX: 5, modY: 0, rotY: 0.4, fov: 38, rimI: 1.4 },
-                // 2 Console — texte DROITE → modèle très à GAUCHE
-                { cam: [0, 0, 7], look: [0, 0, 0], modX: -5, modY: 0, rotY: -0.6, fov: 38, rimI: 0.6 },
-                // 3 Miiverse — texte GAUCHE → modèle très à DROITE
-                { cam: [0, 0, 7], look: [0, 0, 0], modX: 4.5, modY: 1, rotY: 0.5, fov: 38, rimI: 1.0 },
-                // 4 Héritage — texte DROITE → modèle très à GAUCHE
-                { cam: [0, 0, 7], look: [0, 0, 0], modX: -4.5, modY: 0, rotY: -1.2, fov: 38, rimI: 0.7 },
-                // 5 Timeline — centré, immobile
-                { cam: [0, 0, 11], look: [0, 0, 0], modX: 0, modY: 0, rotY: 0, fov: 34, rimI: 0.4 },
-                // 6 Jeux — vue basse
-                { cam: [0, -1, 11], look: [0, 0, 0], modX: 0, modY: -0.5, rotY: 2.2, fov: 42, rimI: 0.5 },
-                // 7 Outro — centré final, immobile, levé pour être au centre du texte
-                { cam: [0, 0, 8.5], look: [0, 0.4, 0], modX: 0, modY: 0.4, rotY: 3.14, fov: 38, rimI: 1.0 },
+                // 1 GamePad — face, immobile (Image 1)
+                { cam: [0, 0, 8.5], look: [0, 0, 0], modX: 2.2, modY: 0, rotY: 0, fov: 38, rimI: 1.4 },
+                // 2 Console — texte DROITE → modèle à GAUCHE (plus subtil)
+                { cam: [0, 0, 8.5], look: [0, 0, 0], modX: -2.2, modY: 0, rotY: -0.6, fov: 38, rimI: 0.6 },
+                // 3 Miiverse — texte GAUCHE → modèle à DROITE
+                { cam: [0, 0, 8.5], look: [0, 0.2, 0], modX: 2.0, modY: 0.8, rotY: 0.5, fov: 38, rimI: 1.0 },
+                // 4 Héritage — texte DROITE → modèle à GAUCHE
+                { cam: [0, 0, 8.5], look: [0, 0, 0], modX: -2.0, modY: 0, rotY: -1.2, fov: 38, rimI: 0.7 },
+                // 5 Timeline — parfaitement aligné sur la ligne centrale
+                { cam: [0, 0, 9], look: [0, 0, 0], modX: 0, modY: 0, rotY: 0, fov: 34, rimI: 0.4 },
+                // 6 Jeux — vue légèrement basse
+                { cam: [0, -0.5, 9], look: [0, 0, 0], modX: 0, modY: -0.3, rotY: 2.2, fov: 42, rimI: 0.5 },
+                // 7 Outro — centré pile au milieu du giga-text
+                { cam: [0, 0, 8.5], look: [0, 0, 0], modX: 0, modY: 0.8, rotY: 3.14, fov: 38, rimI: 1.0 },
             ];
 
             let currentPanelIdx = 0;
@@ -1246,7 +1246,7 @@
 
                 // Rotation continue basée sur scroll (gelée pour Hero, Timeline et Outro)
                 if (model) {
-                    if (currentPanelIdx === 0 || currentPanelIdx === 5 || currentPanelIdx === 7) {
+                    if (currentPanelIdx === 0 || currentPanelIdx === 1 || currentPanelIdx === 5 || currentPanelIdx === 7) {
                         modelOrbitY = 0;
                     } else {
                         const progress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
@@ -1328,7 +1328,7 @@
 
                 /* Animation modèle : oscille AUTOUR du centre calculé */
                 if (model) {
-                    const isFrozen = (currentPanelIdx === 0 || currentPanelIdx === 5 || currentPanelIdx === 7);
+                    const isFrozen = (currentPanelIdx === 0 || currentPanelIdx === 1 || currentPanelIdx === 5 || currentPanelIdx === 7);
 
                     /* Rotation : drift temporel désactivé si gelé */
                     const drift = isFrozen ? 0 : time * 0.18;
