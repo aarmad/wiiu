@@ -1075,44 +1075,9 @@
         </div>
 
         <!-- 9: FOOTER -->
-        <footer class="footer">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <div class="nav-logo" style="font-size:2rem;">Wii<em
-                            style="color:var(--accent);font-style:normal">U.</em></div>
-                    <p>Archive interactive dédiée à la Nintendo Wii U. Réalisée avec Three.js & Vue.js.</p>
-                </div>
-                <div class="footer-col">
-                    <h5>Navigation</h5>
-                    <ul>
-                        <li><a href="#">Accueil</a></li>
-                        <li><a href="#">GamePad</a></li>
-                        <li><a href="#">Chronologie</a></li>
-                        <li><a href="#">Jeux</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h5>Innovations</h5>
-                    <ul>
-                        <li><a href="#">GamePad</a></li>
-                        <li><a href="#">Miiverse</a></li>
-                        <li><a href="#">Off-TV Play</a></li>
-                        <li><a href="#">Affichage HD</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h5>Contact</h5>
-                    <ul>
-                        <li><a href="#">info@wiiuarchive.fr</a></li>
-                        <li><a href="#">Twitter / X</a></li>
-                        <li><a href="#">Instagram</a></li>
-                        <li><a href="#">GitHub</a></li>
-                    </ul>
-                </div>
-            </div>
+        <footer class="footer" style="padding: 2rem 5vw; opacity: 0.5;">
             <div class="footer-bottom">
-                <span>© 2026 Wii U Archive. Tous droits réservés.</span>
-                <span>Fait avec ♥ &amp; Three.js</span>
+                <span>© 2026 Wii U Archive. Archive Interactive.</span>
             </div>
         </footer>
 
@@ -1230,21 +1195,21 @@
                DÉFINITIONS DES POSITIONS PAR PANEL
             ════════════════════════════ */
             const PANELS = [
-                // 0 Hero — centré
+                // 0 Hero — centré, immobile, face
                 { cam: [0, 0, 9], look: [0, 0, 0], rotY: 0, fov: 36, rimI: 1.0 },
                 // 1 GamePad — texte GAUCHE → modèle très à DROITE → cam très à gauche
-                { cam: [-13, 0, 6], look: [-2.5, 0, 0], rotY: 0.4, fov: 38, rimI: 1.4 },
+                { cam: [-30, 0, 6], look: [-8.5, 0, 0], rotY: 0.4, fov: 38, rimI: 1.4 },
                 // 2 Console — texte DROITE → modèle très à GAUCHE → cam très à droite
-                { cam: [13, 0, 7], look: [2.5, 0, 0], rotY: -0.6, fov: 38, rimI: 0.6 },
+                { cam: [30, 0, 7], look: [8.5, 0, 0], rotY: -0.6, fov: 38, rimI: 0.6 },
                 // 3 Miiverse — texte GAUCHE → modèle très à DROITE → cam très à gauche
-                { cam: [-12, 1, 7], look: [-2.2, 0.2, 0], rotY: 0.5, fov: 38, rimI: 1.0 },
+                { cam: [-28, 1, 7], look: [-7.0, 0.2, 0], rotY: 0.5, fov: 38, rimI: 1.0 },
                 // 4 Héritage — texte DROITE → modèle très à GAUCHE → cam très à droite
-                { cam: [12, 0, 7], look: [2.2, 0, 0], rotY: -1.2, fov: 38, rimI: 0.7 },
-                // 5 Timeline — centré sur la ligne verticale, gelé
+                { cam: [28, 0, 7], look: [7.0, 0, 0], rotY: -1.2, fov: 38, rimI: 0.7 },
+                // 5 Timeline — centré sur la ligne verticale, immobile
                 { cam: [0, 0, 11], look: [0, 0, 0], rotY: 0, fov: 34, rimI: 0.4 },
                 // 6 Jeux — vue basse
                 { cam: [0, -0.5, 11], look: [0, -0.3, 0], rotY: 2.2, fov: 42, rimI: 0.5 },
-                // 7 Outro — centré final, gelé
+                // 7 Outro — centré final, immobile
                 { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.14, fov: 38, rimI: 1.0 },
             ];
 
@@ -1275,10 +1240,14 @@
                     revealPanelContent(idx);
                 }
 
-                // Rotation continue basée sur scroll (gelée pour Timeline et Outro)
-                if (model && currentPanelIdx !== 5 && currentPanelIdx !== 7) {
-                    const progress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-                    modelOrbitY = progress * Math.PI * 4;
+                // Rotation continue basée sur scroll (gelée pour Hero, Timeline et Outro)
+                if (model) {
+                    if (currentPanelIdx === 0 || currentPanelIdx === 5 || currentPanelIdx === 7) {
+                        modelOrbitY = 0;
+                    } else {
+                        const progress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+                        modelOrbitY = progress * Math.PI * 4;
+                    }
                 }
             });
 
@@ -1349,9 +1318,16 @@
 
                 /* Animation modèle : oscille AUTOUR du centre calculé */
                 if (model) {
-                    model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + time * 0.18, 0.03);
-                    /* Float = offset de centrage + légère oscillation (stop pour Timeline et Outro) */
-                    const dynamicY = (currentPanelIdx === 5 || currentPanelIdx === 7) ? 0 : Math.sin(time * 0.7) * 0.08;
+                    const isFrozen = (currentPanelIdx === 0 || currentPanelIdx === 5 || currentPanelIdx === 7);
+
+                    /* Rotation : drift temporel désactivé si gelé */
+                    const drift = isFrozen ? 0 : time * 0.18;
+                    /* Vitesse de lerp augmentée si gelé pour éviter tout mouvement résiduel */
+                    const rotSpeed = isFrozen ? 0.15 : 0.03;
+                    model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + drift, rotSpeed);
+
+                    /* Float = offset de centrage + oscillation (stop si gelé) */
+                    const dynamicY = isFrozen ? 0 : Math.sin(time * 0.7) * 0.08;
                     model.position.y = modelCenteredY + dynamicY;
                 }
 
