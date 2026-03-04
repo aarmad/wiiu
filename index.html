@@ -1136,9 +1136,13 @@
 
             /* ── Particules supprimées ── */
 
-            /* ── État de caméra cible (lerp) ── */
+            /* ── État de caméra et modèle cible (lerp) ── */
             const camTarget = { x: 0, y: 0, z: 10 };
             const lookTarget = { x: 0, y: 0, z: 0 };
+            let modelTargetX = 0;
+            let modelTargetY = 0;
+            let modelX = 0;
+            let modelY = 0;
             let modelRotY = 0;
             let modelOrbitY = 0;
 
@@ -1195,22 +1199,22 @@
                DÉFINITIONS DES POSITIONS PAR PANEL
             ════════════════════════════ */
             const PANELS = [
-                // 0 Hero — centré, immobile, face
-                { cam: [0, 0, 9], look: [0, 0, 0], rotY: 0, fov: 36, rimI: 1.0 },
-                // 1 GamePad — texte GAUCHE → modèle très à DROITE → cam très à gauche
-                { cam: [-30, 0, 6], look: [-8.5, 0, 0], rotY: 0.4, fov: 38, rimI: 1.4 },
-                // 2 Console — texte DROITE → modèle très à GAUCHE → cam très à droite
-                { cam: [30, 0, 7], look: [8.5, 0, 0], rotY: -0.6, fov: 38, rimI: 0.6 },
-                // 3 Miiverse — texte GAUCHE → modèle très à DROITE → cam très à gauche
-                { cam: [-28, 1, 7], look: [-7.0, 0.2, 0], rotY: 0.5, fov: 38, rimI: 1.0 },
-                // 4 Héritage — texte DROITE → modèle très à GAUCHE → cam très à droite
-                { cam: [28, 0, 7], look: [7.0, 0, 0], rotY: -1.2, fov: 38, rimI: 0.7 },
-                // 5 Timeline — centré sur la ligne verticale, immobile
-                { cam: [0, 0, 11], look: [0, 0, 0], rotY: 0, fov: 34, rimI: 0.4 },
+                // 0 Hero — centré, immobile
+                { cam: [0, 0, 9], look: [0, 0, 0], modX: 0, modY: 0, rotY: 0, fov: 36, rimI: 1.0 },
+                // 1 GamePad — texte GAUCHE → modèle très à DROITE
+                { cam: [0, 0, 6.5], look: [0, 0, 0], modX: 5, modY: 0, rotY: 0.4, fov: 38, rimI: 1.4 },
+                // 2 Console — texte DROITE → modèle très à GAUCHE
+                { cam: [0, 0, 7], look: [0, 0, 0], modX: -5, modY: 0, rotY: -0.6, fov: 38, rimI: 0.6 },
+                // 3 Miiverse — texte GAUCHE → modèle très à DROITE
+                { cam: [0, 0, 7], look: [0, 0, 0], modX: 4.5, modY: 1, rotY: 0.5, fov: 38, rimI: 1.0 },
+                // 4 Héritage — texte DROITE → modèle très à GAUCHE
+                { cam: [0, 0, 7], look: [0, 0, 0], modX: -4.5, modY: 0, rotY: -1.2, fov: 38, rimI: 0.7 },
+                // 5 Timeline — centré, immobile
+                { cam: [0, 0, 11], look: [0, 0, 0], modX: 0, modY: 0, rotY: 0, fov: 34, rimI: 0.4 },
                 // 6 Jeux — vue basse
-                { cam: [0, -0.5, 11], look: [0, -0.3, 0], rotY: 2.2, fov: 42, rimI: 0.5 },
-                // 7 Outro — centré final, immobile
-                { cam: [0, 0, 8], look: [0, 0, 0], rotY: 3.14, fov: 38, rimI: 1.0 },
+                { cam: [0, -1, 11], look: [0, 0, 0], modX: 0, modY: -0.5, rotY: 2.2, fov: 42, rimI: 0.5 },
+                // 7 Outro — centré final, immobile, levé pour être au centre du texte
+                { cam: [0, 0, 8.5], look: [0, 0.4, 0], modX: 0, modY: 0.4, rotY: 3.14, fov: 38, rimI: 1.0 },
             ];
 
             let currentPanelIdx = 0;
@@ -1256,6 +1260,8 @@
                 if (!p) return;
                 camTarget.x = p.cam[0]; camTarget.y = p.cam[1]; camTarget.z = p.cam[2];
                 lookTarget.x = p.look[0]; lookTarget.y = p.look[1]; lookTarget.z = p.look[2];
+                modelTargetX = p.modX || 0;
+                modelTargetY = p.modY || 0;
                 modelRotY = p.rotY;
                 camera.fov = p.fov;
                 camera.updateProjectionMatrix();
@@ -1316,6 +1322,10 @@
                 );
                 camera.lookAt(_look);
 
+                /* Lerp positions modèle */
+                modelX = lerp(modelX, modelTargetX, s);
+                modelY = lerp(modelY, modelTargetY, s);
+
                 /* Animation modèle : oscille AUTOUR du centre calculé */
                 if (model) {
                     const isFrozen = (currentPanelIdx === 0 || currentPanelIdx === 5 || currentPanelIdx === 7);
@@ -1326,9 +1336,10 @@
                     const rotSpeed = isFrozen ? 0.15 : 0.03;
                     model.rotation.y = lerp(model.rotation.y, modelRotY + modelOrbitY + drift, rotSpeed);
 
-                    /* Float = offset de centrage + oscillation (stop si gelé) */
+                    /* Position X/Y : applique les offsets et le centrage */
+                    model.position.x = modelX;
                     const dynamicY = isFrozen ? 0 : Math.sin(time * 0.7) * 0.08;
-                    model.position.y = modelCenteredY + dynamicY;
+                    model.position.y = modelCenteredY + modelY + dynamicY;
                 }
 
                 /* pas de particules */
